@@ -1,0 +1,8 @@
+[submodule "lib/PLibESPV1"]
+	path = lib/PLibESPV1
+	url = http://github.com/LSC-Labs/PLibESPV1
+	branch = main
+[submodule "doc/wiki"]
+	path = doc/wiki
+	url = https://github.com/LSC-Labs/ESP-ProjectTemplate.wiki.git
+	branch = main

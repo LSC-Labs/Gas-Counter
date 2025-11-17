@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head> 
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LSC-Labs ESPRuntime</title>
+
+  <!--
+    Include the runtime stylesheets,
+    and the application specific one
+   -->
+  <link rel="stylesheet" href="css/_runtime.css">
+  <link rel="stylesheet" href="css/app.css">
+
+  <!--
+    Javascript... 
+    - the settings for this application,
+    - the runtime library
+    - the application specific scripts
+  -->
+  <script type="text/javascript" src="js/settings.js"></script>
+  <script type="text/javascript" src="js/_runtime.js" defer></script>
+  <script type="text/javascript" src="js/_pages.js" defer></script>
+  <script type="text/javascript" src="js/index.js" defer></script>
+</head>
+<body>
+  <!-- mainPage is the primary screen to be used for all device  operation -->
+  <div id="mainPage">
+    <!-- contains the sidebar - normaly on the left -->
+    <nav id="sidebar">
+      <div class="nav-header">
+          <span class="logo">LSC Labs</span>
+          <button id="sidebarHide" onclick="SB.show(false)" data-icon="Arrows">
+          </button>
+      </div>
+      <ul> 
+        <!-- menu content will be inserted by defaults.js and page definitions -->
+      </ul>
+      <ul class="UAC">
+        <li data-auth="1"><button data-on="Signout"><span data-i18n="menu.signout">out</span></button></li>
+        <li data-auth="0"><button data-on="Signin"><span data-i18n="menu.signin">in</span></button></li>
+      </ul>
+      </button>
+    </nav>
+    <!-- mainView is the working area, right of the sidebar -->
+    <div id="mainView">
+      <!-- in the mainView there is a info bar on the top -->
+      <div id="infoBar">
+        <div>
+          <button type="button" id="sidebarShow" onclick="SB.show(true)" data-icon="Arrows" data-icon-attr="rotate=130deg; height=16px; width=16px">
+          </button>
+        </div>
+        <div class="pull-right" id="statusInfo" style="display: none;">
+            <div class="alert alert-warning" role="alert" >
+               <icon data-icon-attr="class=pull-left" data-icon="Alert"></icon>
+               <span data-i18n="main.conLost"></span>
+            </div>
+        </div>
+      </div>
+      <!-- the main content -->
+      <div id="mainContent">
+          <!-- 
+            This area is used to view the pages when requested.
+            Insert default or a splash display in initial phase...
+           -->
+      </div>
+    </div>
+    <!-- inside the mainPage, this is the footer -->
+    <div class="footer">
+      <div id="footerInfo"    class="text-muted">
+        <a href="$(homePage)" target="_" title="online repository" data-element-type="expand">$(prog_name) V.$(prog_ver) - $(prog_copy)</a>
+        <span id="ticketLink"></span>
+      </div>
+      <div id="changePending"  style="display:none" >
+        <a data-i18n="SysCfg.changePending"></a>
+      </div>
+    </div>
+  </div>
+
+  <!-- alternatePage displays user contents and alternate pages in the whole window -->
+  <div id="altPage" style="display:none" >
+  </div>
+
+  <div id="Dialogs">
+    <!-- The data review dialog -->
+    <dialog id="reviewDialog" class="modalDialog">
+      <div class="dialogHeader">
+        <button type="button" class="closeButton pull-right" data-dismiss="modal" >&times;</button>
+        <h4 class="modal-title" data-i18n="main.pleaseReview"></h4>
+      </div>
+      <div class="dialogBody">
+        <pre id="reviewData"><!-- Data to be reviewed will be inserted here... --></pre>
+      </div>
+      <div class="dialogFooter">
+        <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal" data-i18n="main.cancel"></button>
+        <button type="button" class="btn btn-primary btn-sm pull-right" data-i18n="main.saveReboot"></button>
+      </div>
+    </dialog>
+
+    <dialog id="alertDialog" class="modalDialog">
+      <div class="dialogHeader row">
+        <div class="col-xs-2" data-icon="Alert"></div>
+        <div class="col-xs-8"><div class="modal-title"></div></div>
+        <div class="col-xs-2" data-icon="Alert"></div>
+      </div>
+      <div class="dialogBody"></div>
+      <div class="dialogFooter">
+        <button type="button" class="btn btn-secondary btn-sm"   data-dismiss="modal"></button>
+        <button type="button" class="btn btn-primary pull-right" data-i18n="main.ok" ></button>
+      </div>
+    </dialog>
+
+    <dialog id="waitDialog" class="modalDialog">
+      <div class="dialogHeader">
+        <div class="modal-title text-center" data-i18n="dialog.wait.title"></div>
+      </div>
+      <div class="dialogBody"></div>
+      <div class="progressBar"><div class="progressStatus"></div>
+      
+    </dialog>
+
+    <dialog id="signinDialog" class="modalDialog">     
+      <div class="dialogHeader">
+        <button type="button" class="closeButton pull-right" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title" data-i18n="login.title">...</h4>
+      </div>
+      <form role="form">      <!-- Form starts here... to avoid loosing the "escape key" function-->
+        <div class="dialogBody">
+          <div class="form-group">
+            <!-- Browser validation fails, when btn-primary is in place !? validate in java script -->
+            <input autofocus class="form-control" placeholder="Password" name="password" type="password" value="" required title="Please enter your password">
+          </div>
+          <div class="inError" style="display:none">Error message comes here...</div>
+        </div>
+        <div class="dialogFooter">
+          <button type="submit" class="btn btn-primary btn-md pull-right">Login</button>
+        </div>
+      </form>
+
+    </dialog>
+  
+  </div>
+
+  <div id="ViewContainers" style="display:none" >
+    
+    <div id="altContent">
+      <div id="progressContent">
+        <br>
+        <br>
+        <div class="container">
+            <div class="row">
+                <br>
+                <div class="col-md-8 col-md-offset-2">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title" data-i18n="main.reboot">Please wait while your ESP restarts...</h3>
+                        </div>
+                        <div class="panel-body">
+                            <div class="progress">
+                                <div id="progressBar" 
+                                    class="progress-bar progress-bar-striped active" 
+                                    role="progressbar">0%
+                                </div>
+                            </div>
+                        </div>
+                        <div class="panel-footer text-center" id="reconnect" style="display:none;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- The page container holding all pages to be displayed, when selected by user-->
+  <div id="PageContainer" style="display: none;">
+   
+
+  </div>
+</body>
+</html>

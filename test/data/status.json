@@ -1,0 +1,59 @@
+{
+    "DebugMode": true,
+    "prog_name": "DewPoint Switch",
+    "prog_version": "0.1.0.E-D",
+    "uptime": "00:00:02",
+    "starttime": 78,
+    "now": 2325,
+    "full_ver": "2.2.2-dev(38a443e)",
+    "chip_id": "aa2c46",
+    "cpu_clock": 80,
+    "flash_size": 4194304,
+    "flash_real_size": 4194304,
+    "heap_free": 31240,
+    "heap_max": 31120,
+    "sketch_size": 920832,
+    "sketch_free_size": 2224128,
+    "fs_total": 1024000,
+    "fs_used": 16384,
+
+    "bat": {
+            "power": 4.17,
+            "available": true,
+            "raw": 973
+        },
+    "rf433": {
+            "enabled": true,
+            "msgs": [
+                { "on": 4333356,"msg": 1, "type":0 },
+                { "on": 4333362,"msg": 0, "type":1 }
+            ]
+        },
+
+    "wifi": {
+        "stopTime": 0,
+        "restartTime": 4294967295,
+        "onlineTime": 2130,
+        "hostname": "DeviceSimulator",
+        "accesspoint": true,
+        "stationmode": false,
+        "isConnected": true,
+        "startTime": 6234,
+        "ssid": "LSC-ebcd45cf",
+        "dns": "192.168.4.1",
+        "mac": "26:D7:EB:CD:45:CF",
+        "ip": "192.168.4.1",
+        "gateway": "192.168.4.1",
+        "netmask": "255.255.255.0",
+        "rssi": 31
+    },
+    "mqtt": {
+        "isEnabled": true,
+        "isConnected": false,
+        "started": 33445,
+        "disconTS": 33467,
+        "disconReasonRC": 4,
+        "disconReason": "stupid counterpart"
+    }
+    
+}

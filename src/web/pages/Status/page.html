@@ -1,0 +1,107 @@
+<!-- 
+    Status - Page 
+-->
+<div id="StatusPage">
+    <legend data-i18n="Status.legend">Status of $(prog_name) Ver.: $(prog_ver)</legend>
+
+    <div class="row text-center">
+        <div class="col-md-8 col-md-offset-2">
+
+            <div class="panel panel-default table-responsive">
+                <table class="table table-hover table-striped table-condensed">
+                    <caption>Device</caption>
+                    <tr>
+                        <th>Systemname</th>
+                        <td data-cfg="hostname"></td>
+                    </tr>
+                    <tr>
+                        <th>Uptime</th>
+                        <td data-cfg="uptime"></td>
+                    </tr>
+                    <tr>
+                        <th>Flash usage</th>
+                        <td>
+                            <div class='progress' style="margin-bottom: 0 !important;">
+                                <div data-id="flash" class="progress-bar progress-bar-primary" role="progressbar">
+                                </div>
+                                <div data-id="flash_rest" class="progress-bar" style="background-color: bisque;" role="progressbar">
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Battery</th>
+                        <td ><span data-cfg="power"></span> V</td>
+                    </tr>
+
+                </table>
+            </div>
+
+            <div class="panel panel-default table-responsive">
+                <table data-cfg="client-table" class="table table-hover table-striped table-condensed">
+                    <caption>Client list</caption>
+                </table>
+            </div>
+
+            <div class="panel panel-default table-responsive">
+                <table class="table table-hover table-striped table-condensed">
+                    <caption>Network</caption>
+                    <tr>
+                        <th>SSID</th>
+                        <td data-cfg="ssid"></td>
+                    </tr>
+                    <tr>
+                        <th data-i18n="wlan.sigstrength" >Signal strength</th>
+                        <td><span data-cfg="rssi"></span> dB</td>
+                    </tr>
+                    <tr>
+                        <th>IP</th>
+                        <td data-cfg="ip"></td>
+                    </tr>
+                    <tr>
+                        <th>Gateway</th>
+                        <td data-cfg="gateway"></td>
+                    </tr>
+                    <tr>
+                        <th>Mask</th>
+                        <td data-cfg="netmask"></td>
+                    </tr>
+                    <tr>
+                        <th>DNS</th>
+                        <td data-cfg="dns"></td>
+                    </tr>
+                    <tr>
+                        <th>MAC</th>
+                        <td data-cfg="mac"></td>
+                    </tr>
+                </table> 
+            </div>
+            
+            <div class="panel panel-default table-responsive">
+                <table class="table table-hover table-striped table-condensed">
+                    <caption>MQTT</caption>
+                    <tr>
+                        <th>Enabled</th>
+                        <td data-cfg="isEnabled"></td>
+                    </tr>
+                    <tr>
+                        <th>Connected</th>
+                        <td data-cfg="isConnected"></td>
+                    </tr>
+                    <tr>
+                        <th>Last Connection start</th>
+                        <td data-cfg="started"></td>
+                    </tr>
+                    <tr>
+                        <th>Last Connection lost</th>
+                        <td data-cfg="disconTS"></td>
+                    </tr>
+                    <tr>
+                        <th>Disconnect reason</th>
+                        <td data-cfg="disconReason"></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
