@@ -1,7 +1,7 @@
 {
     "logToSerial": true,
     "traceMode": false,
-    "devicename": "LSC-device",
+    "devicename": "LSC-gascounter",
     "devicepwd": "admin-geheim",
     "autorestart": "86400",
     
@@ -17,27 +17,8 @@
         "wifi_pwd": "JoJoBaOel",
         "hostname": "LSC-Device"   
     },
-    "dewswitch": {
-        "dewdelta": 5.2,
-        "hysteresis": 1.5,
-        "min_outdoor": -10.3,
-        "min_indoor": 10.1
-    },
-    "sensorID": {
-        "adjust_humidity": 5,
-        "adjust_temp": -0.2,
-        "physical": true,
-        "web_key": "33445566778899abcdef",
-        "web_lat": "23.556778",
-        "web_long": "8.553641"
-    },
-    "sensorOD": {
-        "adjust_humidity": 0.3,
-        "adjust_temp": 0.5,
-        "physical": false,
-        "web_key": "33445566778899abcdef",
-        "web_lat": "23.556778",
-        "web_long": "8.553641"
+    "gascounter": {
+        "m3hPerTick": 0.02
     },
     "mqtt" : {
         "enabled": false,
@@ -49,12 +30,5 @@
         "user": "",
         "passwd": "",
         "useha": false
-    },
-    "rf433": {
-        "enabled": true,
-        "msgs": [
-            { "on": 4333356,"msg": 1, "type":1 },
-            { "on": 4333362,"msg": 0, "type":0 }
-        ]
-        }
+    }
 }

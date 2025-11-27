@@ -1,0 +1,42 @@
+{
+    "Status" : {
+        "legend"    : "Status - $(prog_name) Ver.: $(prog_ver)",
+        "panel" : {
+            "device"    : "Gerät",
+            "network"   : "Netzwerk",
+            "mqtt"      : "Message Broker",
+            "dewpoint"  : "Taupunkt Schalter" 
+
+        },
+        "hostname"  : "Systemname",
+        "uptime"    : "Laufzeit",
+        "flashSize" : "Größe des Flash",
+        "sketchSize": "Größe des Sketches",
+        "flashUsage": "Speichernutzung",
+        "battery"   : "Batterie",
+        "ssid"      : "SSID",
+        "rssi"      : "Signal Stärke",
+        "ip"        : "IP Adresse",
+        "gateway"   : "Gateway Adresse",
+        "netmask"   : "Netzwerk Maske",
+        "dns"       : "DNS Server",
+        "mac"       : "MAC Adresse",
+        "enabled"   : "Aktviert",
+        "connected" : "Verbunden",
+        "lastConStart"  : "Sart der Verbidnung",
+        "lastConLost"   : "Ende der letzten Verbindung",
+        "disconReason"  : "Ursache des Abbruchs",
+        "memOK"         : "$(sketch_size) Kb genutzt von $(flash_available) Kb => $(flash_used_percent)%",
+        "memWarn"       : "Zu wenig Speicher für einen OTA Update! $(flash_used_percent)% genutzt.",
+
+        "fan": {
+            "active": "Lüfter aktiv"
+        },
+        "sensor": {
+            "OD": "Außensensor",
+            "ID": "Innensensor",
+            "dewpoint": "TP"
+        }
+
+    }
+}

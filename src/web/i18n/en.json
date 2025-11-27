@@ -1,0 +1,271 @@
+{
+  "_language": "English",
+  "menu": {
+    "signin": "Sign in",
+    "signout": "Sign out",
+    "Support": "Feedback / Ticket",
+    "Settings": "Settings",
+    "Maintenance": "Maintenance",
+    "Device": "Device"
+  },
+  "main": {
+    "ok": "OK",
+    "yes": "Yes",
+    "no": "No",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "cancel": "Cancel",
+    "changePending": "You have uncommited changes, please click here to review and commit.",
+    "pleaseReview": "Please review the changes.",
+    "saveReboot": "Save and Reboot...",
+    "conLost": "Connection with $(prog_name) device absent. Reconnecting...",
+    "noFileSelected": "There is no file selected...",
+    "saveBtn": "Save"
+  },
+  "signin": {
+    "title": "Please enter your device admin password...",
+    "submit": "Login"
+  },
+  "dialog": {
+    "wait": {
+      "title": "Please wait"
+    },
+    "save": {
+      "title": "Saving configuration",
+      "waitmsg": "Please wait until process is finished..."
+    }
+  },
+  "System": {
+    "title": "Restart or Reset",
+    "desc": "Restart or Reset the device",
+    "Restart": {
+      "btn": "Restart Device",
+      "title": "Restart Device",
+      "desc": "Restart the device. Save your changes, otherwise they will be lost.",
+      "confirm": "Restart the device now? - all unsaved changes will be lost!",
+      "waitmsg": "Please wait while the device is restarting..."
+    },
+    "Reset": {
+      "btn": "Reset Device",
+      "title": "Factory Reset",
+      "desc": "All settings will be dropped, the device will reboot with factory settings.",
+      "confirm": "Are you sure you want to reset the device to factory defaults? The device will restart in delivery state.",
+      "waitmsg": "Please wait while the device is resetting to factory defaults..."
+    }
+  },
+  "WiFi": {
+    "legend": "Wi-Fi Settings",
+    "scan": {
+      "title": "Scanning WiFi - please wait...",
+      "titleDone": "Select a WiFi to use...",
+      "use": "Select WiFi"
+    },
+    "mode": {
+      "info": "You can run your device in AP Mode or Client Mode. In client mode you will need to connect to an existing Wi-Fi network, in AP Mode ESP creates a Wi-Fi network by itself.",
+      "label": "Mode"
+    },
+    "ssid": {
+      "info": "Select the network name.",
+      "label": "SSID"
+    },
+    "bssid": {
+      "info": "Select the BSSID to use explicit node (optional).",
+      "label": "BSSID"
+    },
+    "passwd": {
+      "info": "Enter the WiFi password.",
+      "label": "Password"
+    },
+    "hide": {
+      "info": "Hide the SSID of the access point.",
+      "label": "Hide SSID"
+    },
+    "dhcp": {
+      "info": "Use DHCP or static ip addresses.",
+      "label": "Use DHCP"
+    },
+    "ip": {
+      "info": "Set the static IP address of this node.",
+      "label": "IP Address"
+    },
+    "subnet": {
+      "info": "Set the subnet mask to be used.",
+      "label": "Subnet mask"
+    },
+    "dns": {
+      "info": "Address of the DNS server.",
+      "label": "DNS server"
+    },
+    "gw": {
+      "info": "Address of the Gateway to the world.",
+      "label": "Gateway"
+    },
+    "fallback": {
+      "info": "Fallback to Access Point Mode when WiFi Network could not be joined.",
+      "label": "Fallback"
+    },
+    "AP": {
+      "type": "Access Point",
+      "desc": "Type your Wi-Fi Network's SSID."
+    },
+    "STA": {
+      "type": "Client",
+      "desc": "Type your Wi-Fi Network's SSID or press 'Scan' for nearby Wireless Networks to join."
+    }
+  },
+  "MQTT": {
+    "title": "Message Broker",
+    "desc": {
+      "enable": "Enable the message broker to use this service.",
+      "configure": "Configure the message broker or disable to stop the service."
+    },
+    "enable": {
+      "label": "MQTT Support",
+      "info": "Enable or disable the MQTT support."
+    },
+    "host": {
+      "label": "Host",
+      "info": "MQTT Server host name, IP address or url."
+    },
+    "port": {
+      "label": "Port",
+      "info": "MQTT server port."
+    },
+    "user": {
+      "label": "User",
+      "info": "MQTT technical user to login."
+    },
+    "passwd": {
+      "label": "Password",
+      "info": "Password of the technical login user."
+    },
+    "topic": {
+      "label": "Topic prefix",
+      "info": "Prefix applied to all MQTT topics."
+    },
+    "autotopic": {
+      "label": "Auto topic",
+      "info": "Automatically add a unique identifier (last 6 digits of MAC address) to the MQTT topic prefix."
+    },
+    "syncrate": {
+      "label": "Sync time (seconds)",
+      "info": "Sync time to send a heartbeat message to the MQTT server."
+    }
+  },
+  "Device": {
+    "legend": "Welcome to your Dew Point Device",
+    "title": "Set the name of your device (hostname) and the password for the admin account",
+    "hostname": {
+      "text": "Host name",
+      "title": "Enter the hostname here..."
+    },
+    "password": {
+      "text": "Password",
+      "title": "Enter the password for the admin account"
+    }
+  },
+  "SysCfg": {
+    "legend": "Backup & Restore",
+    "title": "Backup or Restore the device configuration. Be aware, the backup file is <b>NOT</b> encrypted.<br/> Store it on a safe place to avoid loosing your access credentials...",
+    "Backup": {
+      "title": "Backup Settings",
+      "desc": "Save the config to a backup file.",
+      "btn": "Backup Settings"
+    },
+    "Restore": {
+      "title": "Restore Settings",
+      "desc": "Click and choose your file from your local device to be restored.",
+      "btn": "Restore Settings",
+      "invalidFile": "The file you selected is not a valid backup file..."
+    }
+  },
+  "Firmware": {
+    "legend": "Firmware update (current firmware: $(prog_ver))",
+    "title": "Firmware update is possible. Make a backup first, before updating to avoid loss of data.",
+    "latest": "Current available version online",
+    "install": "Select the version you want to install",
+    "downloadBtn": "Download",
+    "installBtn": "Install",
+    "noInternet": "It seems, there is no internet connection available or the firmware update server is down."
+  },
+  "Status": {
+    "legend": "Status of $(prog_name) Ver.: $(prog_ver)",
+    "panel": {
+      "device": "Device",
+      "network": "Network",
+      "mqtt": "Message broker",
+      "dewpoint": "Dew Point switch",
+      "gasCounter": "Gas Counter",
+      "gascounter": "Gas Counter"
+    },
+    "hostname": "Systemname",
+    "uptime": "Uptime",
+    "flashSize": "Flash size",
+    "sketchSize": "Sketch size",
+    "flashUsage": "Mem usage",
+    "battery": "Battery",
+    "ssid": "SSID",
+    "rssi": "Signal strength",
+    "ip": "IP address",
+    "gateway": "Gateway address",
+    "netmask": "Network mask",
+    "dns": "DNS server",
+    "mac": "MAC address",
+    "enabled": "Enabled",
+    "connected": "Connected",
+    "lastConStart": "Last Connection start",
+    "lastConLost": "Last Connection lost",
+    "disconReason": "Disconnect reason",
+    "memOK": "$(sketch_size) Kb used of $(flash_available) Kb => $(flash_used_percent)%",
+    "memWarn": "Too less memory to update via OTA ! $(flash_used_percent)% used.",
+    "dewpoints": "Dew Points In / Out",
+    "fan": {
+      "active": "Fan active"
+    },
+    "sensor": {
+      "OD": "Sensor (Outdoor)",
+      "ID": "Sensor (Indoor)",
+      "dewpoint": "DP"
+    },
+    "gasCounter": {
+      "total": "Total consumed",
+      "today": "Today consumed",
+      "prevday": "Yesterday consumed",
+      "actHour": "Actual consuming",
+      "lastHour": "Consumed in last hour"
+    },
+    "gascounter": {
+      "total": "Total consumed",
+      "today": "Today consumed",
+      "prevday": "Yesterday consumed",
+      "actHour": "Actual consuming",
+      "lastHour": "Consumed in last hour",
+      "m3hTotal": "Total",
+      "m3hToday": "Today",
+      "m3hPrevday": "Yesterday",
+      "m3hCurrent": "Actual consuming",
+      "m3hLastHour": "Consumed in last hour"
+    }
+  },
+  "gasCounter": {
+    "legend": "Gas Counter Settings",
+    "title": "Set the gas counter values and thresholds",
+    "hysteresis": "Hysteresis",
+    "m3hPerTick": {
+      "label": "Volume per Tick (m³)",
+      "info": "Volume in cubic meters per tick of the gas counter"
+    },
+    "m3PerTick": {
+      "label": "m³ per Tick",
+      "info": "Volume in cubic meters per tick of the gas counter"
+    }
+  },
+  "Info": {
+    "legend": "Current measurements",
+    "intern": "Indoor",
+    "extern": "Outdoor",
+    "dewpoint": "Dew Point",
+    "temp": "Temperature",
+    "hum": "Humidity"
+  }
+}

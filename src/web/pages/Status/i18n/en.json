@@ -1,0 +1,40 @@
+{
+    "Status" : {
+        "legend"    : "Status of $(prog_name) Ver.: $(prog_ver)",
+        "panel" : {
+            "device"    : "Device",
+            "network"   : "Network",
+            "mqtt"      : "Message broker",
+            "gascounter": "Gas Counter" 
+
+        },
+        "hostname"  : "Systemname",
+        "uptime"    : "Uptime",
+        "flashSize" : "Flash size",
+        "sketchSize": "Sketch size",
+        "flashUsage": "Mem usage",
+        "battery"   : "Battery",
+        "ssid"      : "SSID",
+        "rssi"      : "Signal strength",
+        "ip"        : "IP address",
+        "gateway"   : "Gateway address",
+        "netmask"   : "Network mask",
+        "dns"       : "DNS server",
+        "mac"       : "MAC address",
+        "enabled"   : "Enabled",
+        "connected" : "Connected",
+        "lastConStart"  : "Last Connection start",
+        "lastConLost"   : "Last Connection lost",
+        "disconReason"  : "Disconnect reason",
+        "memOK"         : "$(sketch_size) Kb used of $(flash_available) Kb => $(flash_used_percent)%",
+        "memWarn"       : "Too less memory to update via OTA ! $(flash_used_percent)% used.",
+
+        "gascounter": {
+            "m3hTotal"    : "Total",
+            "m3hToday"    : "Today",
+            "m3hPrevday"  : "Yesterday",
+            "m3hCurrent"  : "Actual consuming",
+            "m3hLastHour" : "Consumed in last hour"
+        }
+    }
+}

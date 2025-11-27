@@ -1,0 +1,30 @@
+
+<!--
+    GasCounter Page
+-->
+<div id="GasCounterPage" 
+    data-menu='{"name":"Settings|GasCounter","title":"Gas Counter", "icon":"Speedometer"}'>
+
+    <legend data-i18n="gasCounter.legend"></legend>
+    <div class="pageDesc" data-i18n="gasCounter.title"></div>
+
+
+    <!-- Volume per Tick setting -->
+    <div class="row form-group" data-auth="RO">
+        <label class="$(col-label-class) info-icon" data-i18n="@title:gasCounter.m3PerTick.info">
+            <span data-i18n="gasCounter.m3PerTick.label"></span>
+            <icon data-icon="Info"></icon>
+        </label>
+        <span class="$(col-input-class)">
+            <input  data-cfg="m3PerTick" 
+                    class="form-control input-sm" 
+                    type="number" 
+                    step="0.01"
+                    min="0"
+                    max="1"
+                    value="0.01">
+        </span>
+    </div>
+
+    <div class="row form-group" data-element-type="save-btn-row"></div>
+</div>

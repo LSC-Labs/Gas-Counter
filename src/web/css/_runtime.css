@@ -33,6 +33,9 @@
   --alert-text-color: #ffffff;
   --progress-bar-color: rgb(243, 195, 118);
   --progress-status-color: maroon;
+  --progress-usage-color: wheat;
+  --progress-usage-ok-color: rgb(78, 141, 78);
+  --prograss-usage-warn-color: var(--alert-bg-color);
   --primary-color: #fff;
   --primary-bg-color: #337ab7;
   --primary-bg-focus-color: #286090;
@@ -1249,6 +1252,10 @@ input:invalid + span::after {
   fill: var(--alert-text-color);
 }
 
+VarTable, PageVars, LocalVars {
+  display: none;
+}
+
 .footer {
   position: fixed;
   bottom: 0;
@@ -1283,6 +1290,36 @@ input:invalid + span::after {
   content: "";
   display: table;
   clear: both;
+}
+
+.groupPanel {
+  padding: 10px;
+  background-color: var(--action-bg-color);
+  border: 1px solid var(--primary-border-color);
+  border-radius: 5px;
+  box-shadow: 3px 3px 3px var(--sidebar-shadow-color);
+  margin-bottom: 20px;
+}
+.groupPanel button, .groupPanel label {
+  box-shadow: 3px 3px 3px var(--sidebar-shadow-color);
+}
+.groupPanel legend {
+  font-size: 18px;
+  width: auto;
+}
+
+.groupPanelHeader {
+  border-bottom: 1px solid var(--primary-border-color);
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+}
+
+.groupPanelFooter {
+  border-top: 1px solid var(--primary-border-color);
+  padding-top: 10px;
+  margin-bottom: 10px;
+  margin-top: 10px;
+  text-align: center;
 }
 
 .changePending {
@@ -1522,6 +1559,10 @@ input:invalid + span::after {
   border-top: 1 dotted red;
 }
 
+.waitBody {
+  margin-bottom: 20px;
+}
+
 .modalDialog {
   width: 80%;
   max-width: 30em;
@@ -1554,7 +1595,21 @@ input:invalid + span::after {
   width: 100%;
   background-color: var(--progress-bar-color);
   border: 2px fixed;
-  border-radius: 10px;
+  padding: 2px;
+  border-radius: 5px;
+}
+.progressBar .usageStatus {
+  width: 0%;
+  height: 1rem;
+  border-radius: 5px;
+  color: var(--progress-usage-color);
+  font-size: smaller;
+}
+.progressBar .usageOK {
+  background-color: var(--progress-usage-ok-color);
+}
+.progressBar .usageWarn {
+  background-color: var(--progress-usage-warn-color);
 }
 
 .progressStatus {

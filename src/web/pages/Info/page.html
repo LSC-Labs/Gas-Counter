@@ -1,0 +1,81 @@
+<div id="InfoPage" >
+     <!-- Status of $(prog_name) Ver.: $(prog_ver) -->
+    <legend data-i18n="Info.legend"></legend>
+
+    <div class="row">
+        <div class="col-xs-12 col-md-6 chartEnabled">
+            <div class="chartCard">
+                <div id="chartCurrent" class="chartBox" data-label="Current">
+                    <canvas id="chartCurrentCanvas"></canvas>
+                    <div>
+                        <div class="number"></div>
+                        <div class="label"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="groupPanel">
+                <div class="groupPanelHeader" data-i18n="Info.intern"></div>
+                <div class="row">
+                    <div class="col-xs-offset-1 col-xs-2" id="intTemp" ></div>
+                    <div class="col-xs-2" id="intHumidity" ></div>
+                    <div class="col-xs-6">
+                        <table class="table table-hover table-condensed">
+                            <tr>
+                                <!-- temperature -->
+                                <th data-i18n="Info.temp">bb</th>
+                                <td><span id="tempID"></span></td>
+                            </tr>
+                            <tr>
+                                <!-- dew point -->
+                                <th data-i18n="Info.hum">bb</th>
+                                <td><span id="humID"></span></td>
+                            </tr>
+                            <tr>
+                                <!-- humiditiy -->
+                                <th data-i18n="Info.dewpoint"></th>
+                                <td ><span id="dewPointID"></span></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="groupPanel">
+                <div class="groupPanelHeader" data-i18n="Info.extern"></div>
+               <div class="row">
+                    <div class="col-xs-offset-1 col-xs-2" id="extTemp" ></div>
+                    <div class="col-xs-2" id="extHumidity" ></div>
+                    <div class="col-xs-6">
+                        <table class="table table-hover table-condensed">
+                            <tr>
+                                <!-- temerature -->
+                                <th data-i18n="Info.temp">bb</th>
+                                <td><span id="tempOD"></span></td>
+                            </tr>
+                            <tr>
+                                <!-- humidity -->
+                                <th data-i18n="Info.hum">bb</th>
+                                <td><span id="humOD"></span></td>
+                            </tr>
+                            <tr>
+                                <!-- dew point -->
+                                <th data-i18n="Info.dewpoint"></th>
+                                <td ><span id="dewPointOD"></span></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+               
+            </div>
+       </div>
+    </div>
+</div>

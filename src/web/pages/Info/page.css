@@ -1,0 +1,25 @@
+.chartCard {
+    /* width: 100vw; */
+    /* height: calc(100vh - 40px); */
+    background: rgba(54, 162, 235, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.chartBox {
+    width: 350px;
+    padding: 20px;
+    border-radius: 20px;
+    border: solid 3px rgba(54, 162, 235, 1);
+    background: white;
+}
+.chartBox div {
+    font-size: 60px;
+    text-align: center;
+    color: grey;
+}
+.chartBox div .label {
+    font-size: 30px;
+    font-style: italic;
+    color: lightgray;
+}

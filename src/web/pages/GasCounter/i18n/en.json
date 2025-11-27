@@ -1,0 +1,10 @@
+{
+    "gasCounter": {
+        "legend": "Gas Counter Settings",
+        "title" : "Set the gas counter values and thresholds",
+        "m3PerTick": {
+            "label": "m³ per Tick",
+            "info" : "Volume in cubic meters per tick of the gas counter"
+        }
+    }
+}

@@ -1,0 +1,10 @@
+{
+    "Info": {
+        "legend": "Current measurements",
+        "intern": "Indoor",
+        "extern": "Outdoor",
+        "dewpoint": "Dew Point",
+        "temp": "Temperature",
+        "hum": "Humidity"
+    }
+}

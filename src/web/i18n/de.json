@@ -1,0 +1,221 @@
+{
+  "_language": "Deutsch",
+  "menu": {
+    "signin": "Anmelden",
+    "signout": "Abmelden",
+    "Support": "Feedback / Ticket",
+    "Settings": "Einstellungen",
+    "Maintenance": "Wartung",
+    "WiFi": "WLAN",
+    "Device": "Gerät"
+  },
+  "main": {
+    "ok": "OK",
+    "yes": "Ja",
+    "no": "Nein",
+    "enabled": "Aktiv",
+    "disabled": "Inaktiv",
+    "cancel": "Abbruch",
+    "changePending": "Änderungen liegen vor, zum Prüfen und Bestätigen bitte hier klicken.",
+    "pleaseReview": "Bitte die Änderungen überprüfen.",
+    "saveReboot": "Speichern und Neustart...",
+    "conLost": "Verbindung mit $(prog_name) abgebrochen. Erneuter Verbindungsaufbau...",
+    "noFileSelected": "Es wurde keine Datei ausgewählt...",
+    "saveBtn": "Speichern"
+  },
+  "signin": {
+    "title": "Bitte geben Sie das Geräte Passwort ein...",
+    "submit": "Anmelden"
+  },
+  "dialog": {
+    "wait": {
+      "title": "Bitte warten"
+    },
+    "save": {
+      "title": "Speichere die Konfiguration",
+      "waitmsg": "Bitte warten sie, bis die Aktion beendet ist..."
+    }
+  },
+  "WiFi": {
+    "legend": "WLAN Einstellungen",
+    "scan": {
+      "title": "WLAN Suche - bitte warten...",
+      "titleDone": "Wählen Sie ein WLAN...",
+      "use": "Auswählen",
+      "text": "Suchen"
+    },
+    "mode": {
+      "info": "Sie können das Gerät im AP oder im Client Modus betreiben. Im Client Modus müssen sie sich mit einem bestehenden WLAN verbinden, Im AP Modus erstellt das Gerät ein eigenes WLAN.",
+      "label": "Modus"
+    },
+    "ssid": {
+      "info": "Das WLAN Netzwerk.",
+      "label": "SSID"
+    },
+    "bssid": {
+      "info": "Ein fester Netzwerk Knoten (optional).",
+      "label": "BSSID"
+    },
+    "passwd": {
+      "info": "Bitte geben Sie das WLAN Passwort ein.",
+      "label": "Passwort"
+    },
+    "hide": {
+      "info": "Die SSID des Access Points verstecken.",
+      "label": "Verstecke SSID"
+    },
+    "dhcp": {
+      "info": "DHCP oder eine feste IP Adresse.",
+      "label": "Nutze DHCP"
+    },
+    "ip": {
+      "info": "Die statische IP Adresse.",
+      "label": "IP Adresse"
+    },
+    "subnet": {
+      "info": "Die Netz Maske.",
+      "label": "Subnetz Maske"
+    },
+    "dns": {
+      "info": "Adresse des DNS Servers.",
+      "label": "DNS Server"
+    },
+    "gw": {
+      "info": "Adresse des Gateways.",
+      "label": "Gateway"
+    },
+    "fallback": {
+      "info": "Eröffne einen Access Point, wenn dass WLAN nicht erreichbar ist.",
+      "label": "Fallback"
+    },
+    "AP": {
+      "type": "Access Point",
+      "desc": "SSID des Access Points."
+    },
+    "STA": {
+      "type": "Client",
+      "desc": "SSID des WLANs, drücken Sie 'Suchen' um WLANs in der Nähe zu finden."
+    }
+  },
+  "MQTT": {
+    "title": "Message Broker",
+    "desc": {
+      "enable": "Aktiviere den Message Broker.",
+      "configure": "Konfiguriere den Zugriff auf den Message Broker, oder stoppe den Dienst."
+    },
+    "enable": {
+      "label": "MQTT Unterstützung",
+      "info": "Aktiviere oder deaktivire den MQTT service."
+    },
+    "host": {
+      "label": "Host",
+      "info": "Der Name oder die Adresse des MQTT Servers."
+    },
+    "port": {
+      "label": "Port",
+      "info": "Port des MQTT Servers."
+    },
+    "user": {
+      "label": "User",
+      "info": "Technischer User für den MQTT Zugriff."
+    },
+    "passwd": {
+      "label": "Passwort",
+      "info": "Passwort des technischen Users."
+    },
+    "topic": {
+      "label": "Topic prefix",
+      "info": "Prefix für alle MQTT Topics."
+    },
+    "autotopic": {
+      "label": "Auto Topic",
+      "info": "Füge einen automatisches Topic Prefix an die Topics (die letzten 6 Zahlen der MAC Adresse)."
+    },
+    "syncrate": {
+      "label": "Sync (Sekunden)",
+      "info": "Synchronisations Zeit um einen Status an den MQTT Server zu schicken (Heartbeat)."
+    }
+  },
+  "Device": {
+    "legend": "Wilkommen zu ihrem Taupunkt Schalter",
+    "title": "Setzen Sie den Namen des Gerätes (Hostname) und das Admin Passwort",
+    "hostname": {
+      "text": "Gerätename",
+      "title": "Der Name des Gerätes im Netzwerk (Hostname)"
+    },
+    "password": {
+      "text": "Passwort",
+      "title": "Setzen Sie das Passwort für den administrativen Zugriff"
+    }
+  },
+  "SysCfg": {
+    "legend": "Sichern & Wiederherstellung",
+    "title": "Sichern oder Wiederherstellen der Geräte Konfiguration. Achtung, die Backup Datei wird <b>NICHT</b> verschlüsselt.<br/> Sichern Sie die Datei an einen geschützten Platz um zu verhindern, dass jemand Zugriff auf ihre Zugangsdaten erhält...",
+    "Backup": {
+      "title": "Sichern",
+      "desc": "Sichere die aktuelle Konfiguration in eine Datei.",
+      "btn": "Sichere Konfig"
+    },
+    "Restore": {
+      "title": "Lade eine Konfiguration",
+      "desc": "Wählen Sie die Datei aus der die Konfiguration wieder hergestellt, bzw. geladen werden soll.",
+      "btn": "Lade Konfig",
+      "invalidFile": "Die gewählte Datei ist keine gültige Sicherungsdatei..."
+    }
+  },
+  "Firmware": {
+    "legend": "Firmware update (aktuelle firmware: $(prog_ver))",
+    "title": "Firmware update. Machen Sie vorab ein Backup der Konfiguration um einen Datenverlust zu vermeiden.",
+    "latest": "Aktuell verfügbare Version (online)",
+    "install": "Wählen Sie die Version, die sie installieren möchten",
+    "downloadBtn": "Download",
+    "installBtn": "Install",
+    "noInternet": "Aktuell scheint keine Internet Verbindung vorhanden zu sein, oder der Firmware Update Server ist offline."
+  },
+  "Status": {
+    "legend": "Status - $(prog_name) Ver.: $(prog_ver)",
+    "panel": {
+      "device": "Gerät",
+      "network": "Netzwerk",
+      "mqtt": "Message Broker",
+      "dewpoint": "Taupunkt Schalter"
+    },
+    "hostname": "Systemname",
+    "uptime": "Laufzeit",
+    "flashSize": "Größe des Flash",
+    "sketchSize": "Größe des Sketches",
+    "flashUsage": "Speichernutzung",
+    "battery": "Batterie",
+    "ssid": "SSID",
+    "rssi": "Signal Stärke",
+    "ip": "IP Adresse",
+    "gateway": "Gateway Adresse",
+    "netmask": "Netzwerk Maske",
+    "dns": "DNS Server",
+    "mac": "MAC Adresse",
+    "enabled": "Aktviert",
+    "connected": "Verbunden",
+    "lastConStart": "Sart der Verbidnung",
+    "lastConLost": "Ende der letzten Verbindung",
+    "disconReason": "Ursache des Abbruchs",
+    "memOK": "$(sketch_size) Kb genutzt von $(flash_available) Kb => $(flash_used_percent)%",
+    "memWarn": "Zu wenig Speicher für einen OTA Update! $(flash_used_percent)% genutzt.",
+    "fan": {
+      "active": "Lüfter aktiv"
+    },
+    "sensor": {
+      "OD": "Außensensor",
+      "ID": "Innensensor",
+      "dewpoint": "TP"
+    }
+  },
+  "gasCounter": {},
+  "Info": {
+    "legend": "Aktuelle Werte",
+    "intern": "Innen",
+    "extern": "Außen",
+    "dewpoint": "Taupunkt",
+    "temp": "Temperatur",
+    "hum": "Feuchtigkeit"
+  }
+}

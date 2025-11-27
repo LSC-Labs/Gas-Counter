@@ -1,20 +1,20 @@
 {
-  "name": "esp-projecttemplate",
-  "version": "1.0.0",
-  "description": "ESP Template for smart devices",
+  "name": "gas-counter",
+  "version": "0.1.0",
+  "description": "Gas Counter with MQTT",
   "main": "index.js",
   "type": "module",
   "directories": {
     "lib": "lib",
     "test": "test"
   },
-  "homepage": "https://github.com/lsc-labs/ESP-ProjectTemplate#readme",
+  "homepage": "https://github.com/lsc-labs/Gas-Counter#readme",
   "bugs": {
-    "url": "https://github.com/lsc-labs/ESP-ProjectTemplate/issues"
+    "url": "https://github.com/lsc-labs/Gas-Counter/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/lsc-labs/ESP-ProjectTemplate.git"
+    "url": "git+https://github.com/lsc-labs/Gas-Counter.git"
   },
   "scripts": {
     "create-WebPages": "npm run build-Pages && npm run compile-Pages",
@@ -24,7 +24,7 @@
     "watch-css": "sass --watch --style expanded --source-map --embed-sources --no-error-css scss/:src/web/css/",
     "build-Pages": "gulp buildPages",
     "compile-Pages": "gulp compilePages"
-    },
+  },
   "author": "LSC Labs - P.Liebl",
   "license": "MIT",
   "devDependencies": {

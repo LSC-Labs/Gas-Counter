@@ -4,7 +4,7 @@
 // If you want to change the major/minor/patch version nummer, use the file data/prog_ver.json.
 // The build nummer will be incremented in this file by platform.io -> prebuild steps
 
-#define PROG_VERSION_NAME  "ESP-ProjectTemplate"
+#define PROG_VERSION_NAME  "Gas Counter"
 
 #define PROG_VERSION_MAJOR 0
 #define PROG_VERSION_MINOR 1

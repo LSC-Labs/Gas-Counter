@@ -1,0 +1,10 @@
+{
+    "Info": {
+        "legend": "Aktuelle Werte",
+        "intern": "Innen",
+        "extern": "Außen",
+        "dewpoint": "Taupunkt",
+        "temp": "Temperatur",
+        "hum": "Feuchtigkeit"
+    }
+}

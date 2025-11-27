@@ -113,7 +113,7 @@ async function buildHeaderFiles(cb) {
                 console.log(` - file size (${nPackedFileSize})\tis OK ${strPackedFileName}\t ==> ${strHeaderFileName}`);
                 let strIncludeName = path.basename(strPackedFileName);
                 let oWS = fs.createWriteStream(strHeaderFileName);
-                oWS.on("error", function(oErr) { gutil.log(oErr) });
+                oWS.on("error", function(oErr) { console.log(oErr) });
                 oWS.write("#pragma once\n");
                 oWS.write("#define " + strIncludeName.replace(/\.|-/g, "_") + "_len " + nPackedFileSize + "\n");
                 oWS.write("const uint8_t " + strIncludeName.replace(/\.|-/g, "_") + "[] PROGMEM = {")

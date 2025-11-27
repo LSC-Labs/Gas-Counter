@@ -3,7 +3,7 @@
  */
 const APP_SETTINGS = {
     "@Default": "P.Liebl",
-    "DefaultPage" : "Support",              // Page to be loaded on initialization
+    "DefaultPage" : "Info",              // Page to be loaded on initialization
 
     /**
      * "app":
@@ -13,7 +13,7 @@ const APP_SETTINGS = {
      * Use them in this files as $(<name>)
      */
     "app": {
-        "prog_name": "ESP Project Template",    // Name of the program
+        "prog_name": "Gas Counter",    // Name of the program
         "prog_ver": "0.1",
         "prog_copy": "(c) 2025 LSC-Labs",
         "logLevel": 5,                          // Log Level for the web application (0..7)
@@ -21,9 +21,9 @@ const APP_SETTINGS = {
             "recon": true,  // Enable WebSocket reconnection- disable for testing to avoid messages in the html console
         },
         "latest": {
-            "url": "https://api.github.com/repos/LSC-Labs/ESP-ProjectTemplate/releases/latest"
+            "url": "https://api.github.com/repos/LSC-Labs/Gas-Counter/releases/latest"
         },
-        "GitHubPage": "https://github.com/LSC-Labs/DewPoint-Switch",
+        "GitHubPage": "https://github.com/LSC-Labs/Gas-Counter",
         "mailto":"office@lsc-labs.de?subject=$(prog_name) - v$(prog_ver)"
         
     },
@@ -171,9 +171,16 @@ const APP_SETTINGS = {
                     "M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4.5a.5.5 0 0 1-1 0V5.383l-7 4.2-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h5.5a.5.5 0 0 1 0 1H2a2 2 0 0 1-2-1.99zm1 7.105 4.708-2.897L1 5.383zM1 4v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1",
                     "M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7m.354-5.354 1.25 1.25a.5.5 0 0 1-.708.708L13 12.207V14a.5.5 0 0 1-1 0v-1.717l-.28.305a.5.5 0 0 1-.737-.676l1.149-1.25a.5.5 0 0 1 .722-.016"
                 ]
+            },
+            {
+                "name" : "Speedometer",
+                "type" : "svg",
+                "class": "bi bi-speedometer",
+                "data" : [
+                    "M8 2a.5.5 0 0 1 .5.5V4a.5.5 0 0 1-1 0V2.5A.5.5 0 0 1 8 2M3.732 3.732a.5.5 0 0 1 .707 0l.915.914a.5.5 0 1 1-.708.708l-.914-.915a.5.5 0 0 1 0-.707M2 8a.5.5 0 0 1 .5-.5h1.586a.5.5 0 0 1 0 1H2.5A.5.5 0 0 1 2 8m9.5 0a.5.5 0 0 1 .5-.5h1.5a.5.5 0 0 1 0 1H12a.5.5 0 0 1-.5-.5m.754-4.246a.39.39 0 0 0-.527-.02L7.547 7.31A.91.91 0 1 0 8.85 8.569l3.434-4.297a.39.39 0 0 0-.029-.518z",
+                    "M6.664 15.889A8 8 0 1 1 9.336.11a8 8 0 0 1-2.672 15.78zm-4.665-4.283A11.95 11.95 0 0 1 8 10c2.186 0 4.236.585 6.001 1.606a7 7 0 1 0-12.002 0"
+                ]
             }
-
-
         ]
     },
 
@@ -185,6 +192,10 @@ const APP_SETTINGS = {
      * 
      */
     "menu":        [
+        { 
+            "name": "Info",
+            "icon": "Info"
+        },
         { 
             "name": "Status",
             "icon": "Status"

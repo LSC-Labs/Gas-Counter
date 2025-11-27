@@ -8,7 +8,7 @@
 #include <ProgVersion.h>
 #include <Msgs.h>
 #define APP_AUTHOR      "P. Liebl"
-#define APP_DESCRIPTION "ESP-ProjectTemplate."
+#define APP_DESCRIPTION "Gas Counter"
 #define APP_COPYRIGHT   "2025" 
 
 #include <ConfigHandler.h>
@@ -31,24 +31,9 @@
     #define APP_VERSION     PROG_VERSION_LONG
 #endif
 
-#define MSG_SENSOR_STATUS       (MSG_USER_BASE + 20)
-#define MSG_OPEN_WEATHER_DATA   (MSG_USER_BASE + 10)
 
-#define SENSOR_INDOOR       1
-#define SENSOR_OUTDOOR      2
-#define USE_OPEN_WEATHER   99
+// Message ID for gas counter tick event - keep processing short, you are in an interrupt!
+#define MSG_GASCOUNTER_TICK     (MSG_USER_BASE + 20)
 
-struct AppConfig {
-    float minActivationLevelIndoor =  10.0; // Min internal temp to activate
-    float minActivationLevelOutdoor = -10.0; // Min external temp to activate
-    float dewPointActivationDelta  =   5.0; // Dewpoint activation Delta between intern/extern
-    float activationHysteresis     =   1.0; // Hysteresis / Switch threshold temp
-};
 
-struct AppStatus {
-    bool ActiveVentilation = false; // Ventilation is needed and activ
-    bool isInErrorState    = false; // If a sensor is in error, the flag is true.
-    String internalErrorMsg = "";
-    String externalErrorMsg = "";
-};
 
