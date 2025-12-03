@@ -125,13 +125,17 @@ void CGasCounter::dispatch() {
 
 void CGasCounter::writeConfigTo(JsonObject &oCfgNode, bool bHideCritical)
 {
-    oCfgNode["m3PerTick"] = Config.fUnitPerTick;
+    oCfgNode["m3PerTick"]       = Config.fUnitPerTick;
+    oCfgNode["maxRateHourly"]   = Config.fMaxRateHourly;  // Implementation to write configuration to JSON object
+    oCfgNode["maxRateDaily"]    = Config.fMaxRateDaily;
     // Implementation to write configuration to JSON object
 }
 
 void CGasCounter::readConfigFrom(JsonObject &oCfgNode)
 {
-    Config.fUnitPerTick = oCfgNode["m3hPerTick"] | 0.01;
+    Config.fUnitPerTick     = oCfgNode["m3hPerTick"]    | 0.01;
+    Config.fMaxRateHourly   = oCfgNode["maxRateHourly"] | 2.0;
+    Config.fMaxRateDaily    = oCfgNode["maxRateDaily"]  | 20.0;
 }
 
 void CGasCounter::writeStatusTo(JsonObject &oStatusNode)

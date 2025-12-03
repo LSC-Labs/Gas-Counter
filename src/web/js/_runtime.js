@@ -1079,6 +1079,7 @@ class CElement extends Utils {
     hide(bHide = true) {
         if(bHide) this.ac("isHidden");
         else this.show();
+        return(this);
     }
     /**
      * Show this element.
@@ -1089,6 +1090,7 @@ class CElement extends Utils {
     show(bShow = true) {
         if(bShow) this.rc("isHidden");
         else this.hide();
+        return(this);
     }
 
     // #endregion

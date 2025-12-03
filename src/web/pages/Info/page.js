@@ -38,15 +38,15 @@ const ChartPlugins = {
             // Adjust the needle radius to the percentage
             // e.g. Chart width 350 => 50% of 700 => needle radius 15
             nNeedleRadius = Math.round(nNeedleRadius * nChartPercentWidth);
-            console.log("Needle radius : " + nNeedleRadius);
+            // console.log("Needle radius : " + nNeedleRadius);
             const angle = Math.PI / 180;
 
             // https://www.youtube.com/watch?v=hlRMMooNxGM
             const needleValue = data.datasets[0].needleValue;
             const dataTotal = data.datasets[0].data.reduce((a,b) => a + b, 0);
             // View the calulated total chart data and the segments of the arc
-            console.log("Total value of chart data : " + dataTotal);
-            console.log(chart.getDatasetMeta(0).data[0]);
+            // console.log("Total value of chart data : " + dataTotal);
+            // console.log(chart.getDatasetMeta(0).data[0]);
             
             const circumference = 
                 (
@@ -103,17 +103,25 @@ const ChartPlugins = {
             const percentageValue = circumference * 100;
 
             // flowMeter
-            const nFontSize = Math.round(ChartPlugins.Defaults.NeedleCharSize * percentageWidth);
-            console.log("## font size : " + nFontSize);
-            ctx.font = `bold ${nFontSize}px sans-serif`;
+            const nFontSize = Math.round(ChartPlugins.Defaults.NeedleCharSize * 2 * percentageWidth);
+            
             ctx.fillStyle = data.datasets[0].needleColor ?? ChartPlugins.Defaults.NeedleLabelColor ?? 'grey';
             ctx.textAlign = 'center';
+            ctx.font = `bold ${nFontSize}px sans-serif`;
             //ctx.fillText(`${percentageValue.toFixed(2)}%`,xCenter,yCenter + 10 + nFontSize);
-            ctx.fillText(`${needleValue.toFixed(2)} m³`,xCenter,yCenter + 10 + nFontSize);
+            ctx.fillText(`${needleValue.toFixed(2)}`,xCenter,yCenter + 10 + nFontSize);
+
+            ctx.font = `bold ${nFontSize / 2}px sans-serif`;
+            ctx.fillText(`m³`,xCenter + nFontSize + 10 ,yCenter + 10 + nFontSize);
+
+
             // If there is a text in the box to be set, it is in the attribute data-text
+        /*
             if(data.datasets[0].needleText) {
+                ctx.font = `${nFontSize / 2}px sans-serif`;
                 ctx.fillText(`${data.datasets[0].needleText}`,xCenter,yCenter + 20 + nFontSize *2);
             }
+                */
             ctx.restore();
         }
 
@@ -207,54 +215,68 @@ class CTachoChart {
 
 
     constructor(oChartNode) {
-        this.oChartNode = oChartNode;
+        this.oChartNode = EC(oChartNode)
         this.chartWidth = oChartNode.getBoundingClientRect().width - 40;
-        // console.log(this.chartWidth);
-        this.oChartCanvas = oChartNode.querySelector('canvas');
-        this.oChartCTX = this.oChartCanvas.getContext('2d');
-        this.chartData.datasets[0].needleText = EC(oChartNode).data('label');
-        // Prepare the textual display
-        this.oChartText = oChartNode.querySelector('div');
-        if(this.oChartText) {
-            this.oChartNumber = this.oChartText.querySelector(".number");
-            this.oChartLabel = this.oChartText.querySelector(".label");
-        }
-        this.oChartCanvas.style.display = this.isChartJSAvailable() ? "block" : "none";;
-        this.oChartText.style.display = this.isChartJSAvailable() ? "none"  : "block";;
+         // console.log(this.chartWidth);
+        this.oChartText   = this.oChartNode.gel(".chartText");
+        this.oChartCanvas = this.oChartNode.gel('canvas');
+        this.oChartValue  = this.oChartNode.sel(".chartNumber");
+        this.oChartLabel  = this.oChartNode.sel(".chartLabel");
+        this.oChartCTX    = this.oChartCanvas.getBase().getContext('2d');
+        // Prepare the textual display (hide if chart js is not available)
+        this.showSections();
     }
 
+    showSections() {
+        let bIsChartJSAvailable = this.isChartJSAvailable();
+        this.oChartText.hide(bIsChartJSAvailable);
+        this.oChartCanvas.show(bIsChartJSAvailable);
+        return(bIsChartJSAvailable);
+    }
+    updateChart(nValue) {
+        this.oChart.update();
+    }
+
+
+    /**
+     * render the chart...
+     * if Chart.JS is not in place... do nothing
+     * @param {*} nValue 
+     * @param {*} nMaxValue 
+     */
     render(nValue, nMaxValue) {
         // Set the data value (only one for the tachometer)
         this.chartData.datasets[0].data = [nMaxValue?? 10];
-        this.chartData.datasets[0].needleValue = nValue;
-        // prepare the gradient from green to red.
-        const gradientSegment = this.oChartCTX.createLinearGradient(0,0,this.chartWidth,0);
-        gradientSegment.addColorStop(0,'green');
-        gradientSegment.addColorStop(0.4,'yellow');
-        gradientSegment.addColorStop(1,'red');
-        
-        this.chartData.datasets[0].backgroundColor =  [
-                                            gradientSegment,
-                                            'rgba(0, 0, 0, 0.2)'
-                                            ];
-        this.chartData.datasets[0].borderColor =  [
-                                            gradientSegment,
-                                            'rgba(0, 0, 0, 0.2)'
-                                            ];
-                                            
-        this.chartConfig.data = this.chartData;
-
-        if(this.isChartJSAvailable()) {
-            this.oChart = new Chart(this.oChartCanvas, this.chartConfig);
-        } else {
-            if(this.oChartNumber) this.oChartNumber.innerText = `${nValue.toFixed(2)} m³`
-            if(this.oChartLabel) this.oChartLabel.innerText = this.chartData.datasets[0].needleText
+        this.chartData.datasets[0].needleValue = nValue ?? parseFloat(this.oChartValue.innerText);
+        this.chartData.datasets[0].needleText = this.oChartLabel.innerText;
+        let bIsChartJSAvailable = this.showSections();
+        if(bIsChartJSAvailable) {
+            if(this.oChart) this.oChart.update();
+            else {
+                // prepare the gradient from green to red.
+                const gradientSegment = this.oChartCTX.createLinearGradient(0,0,this.chartWidth,0);
+                gradientSegment.addColorStop(0,'green');
+                gradientSegment.addColorStop(0.4,'yellow');
+                gradientSegment.addColorStop(1,'red');
+                
+                this.chartData.datasets[0].backgroundColor =  [
+                                                    gradientSegment,
+                                                    'rgba(0, 0, 0, 0.2)'
+                                                    ];
+                this.chartData.datasets[0].borderColor =  [
+                                                    gradientSegment,
+                                                    'rgba(0, 0, 0, 0.2)'
+                                                    ];
+                                                    
+                this.chartConfig.data = this.chartData;
+                this.oChart = new Chart(this.oChartCanvas.getBase(), this.chartConfig);
+            }
         }
     }
 
     // #region ChartJS Custom Plugins for the Gauge Chart
    
-    isChartJSAvailable() { return typeof Chart === 'function1' }
+    isChartJSAvailable() { return typeof Chart === 'function' }
     // #endregion
 
 
@@ -266,6 +288,9 @@ class CInfoPage extends CPageHandler {
      * 
      * @param {CAPP} oApp 
      */
+
+    fDefaultMaxRateDaily = 10.0;
+    fDefaultMaxRateHourly = 5.0;
     constructor(oApp) {
         // don't use this, before initialized !
         super("info",new CElement("#InfoPage"),oApp.Config);
@@ -279,6 +304,10 @@ class CInfoPage extends CPageHandler {
         super.disposePage(pView, pApp);
         this.RefreshTimer = clearInterval(this.RefreshTimer);
         this.RefreshTimer = null;
+        this.oCC = undefined;
+        this.oCL = undefined;
+        this.oCT = undefined;
+        this.oCY = undefined;
     }
 
     preparePage(pView, pApp) {
@@ -304,6 +333,26 @@ class CInfoPage extends CPageHandler {
     // #endregion
 
     /**
+     * calculate the value for the maximum rate.
+     * fDefault is 5.0.
+     * If fValue1 or fValue2 are higher than fDefault, the higher value is returned.
+     * @param {*} fValue1 
+     * @param {*} fValue2 
+     * @param {*} fDefault 
+     * @returns the maximum rate for the scale....
+     */
+    calcMaxRate(fValue1,fValue2,fDefault) {
+        let fRate = fDefault ?? 5.0;
+        if(fValue1 != undefined) {
+            if (fValue1 >= fRate) fRate = fValue1;
+        }
+        if(fValue2 != undefined) {
+            if (fValue2 >= fRate) fRate = fValue2;
+        }
+        return(fRate);
+    }
+
+    /**
      * 
      * @param {*} pView 
      * @param {*} pApp 
@@ -311,71 +360,34 @@ class CInfoPage extends CPageHandler {
      * @overload
      */
     loadPageConfig(pView, pApp) {
-        let oStatus = pApp.DeviceStatus.gascounter;
-        if(isChartJSAvailable()) {
-            let oCC = new CTachoChart(pView.sel("#chartCurrent"));
-            oCC.render(oStatus.m3hCurrent, 1);
+        let oStatus = pApp.DeviceStatus;
+
+        this.setConfigValues(pView,oStatus);
+        for(let strName in oStatus) {
+            let oData = oStatus[strName];
+            if(oData && Utils.isObj(oData)) {
+                this.setConfigValues(pView,oData,strName);
+            }
         }
 
-        let oID = pApp.DeviceStatus.sensorID ?? {};
-        let oOD = pApp.DeviceStatus.sensorOD ?? {};
-        
-        let nMaxTemp = 80;
-        let nMinTemp = -20; 
-        let nTempRange = 60;
-        let nDefaultTemp = nMinTemp;
-        let nDefaultHum = 0;
-        this._createThermo(pView.gel("#intTemp"), {
-            type: "T",
-            label: (oID.temp_c ? oID.temp_c.toFixed(1) : "--")  + "°",
-            height: this.calcDisplayPercent((oID.temp_c ?? nDefaultTemp),nMinTemp,nTempRange)
-        })
-        this._createThermo(pView.gel("#intHumidity"), {
-            type: "H",
-            label: (oID.hum ?? nDefaultHum).toFixed(1) + "%",
-            height: this.calcDisplayPercent((oID.hum ?? nDefaultHum),0,100)
-        })
-        this._createThermo(pView.gel("#extTemp"), {
-            type: "T",
-            label: (oOD.temp_c ? oOD.temp_c.toFixed(1) : "--.-")  + "°",
-            height: this.calcDisplayPercent((oOD.temp_c ?? nDefaultTemp),nMinTemp,nTempRange)
-        })
-        this._createThermo(pView.gel("#extHumidity"), {
-            type: "H",
-           label: (oOD.hum ?? nDefaultHum).toFixed(1) + "%",
-            height: this.calcDisplayPercent((oOD.hum ?? nDefaultHum),0,100)
-        })
-        pView.gel("#dewPointID").html((oID.dew_point ?? 0).toFixed(1) + "°C" );
-        pView.gel("#tempID").html((oID.temp_c ?? 0).toFixed(1) + "°C" );
-        pView.gel("#humID").html((oID.hum ?? 0).toFixed() + "%" );
+        if(!this.oCC) this.oCC = new CTachoChart(pView.sel("#chartCurrent"));
+        if(!this.oCL) this.oCL = new CTachoChart(pView.sel("#chartLastHour"));
+        if(!this.oCT) this.oCT = new CTachoChart(pView.sel("#chartToday"));
+        if(!this.oCY) this.oCY = new CTachoChart(pView.sel("#chartPrevday"));
 
-        pView.gel("#dewPointOD").html((oOD.dew_point ?? 0).toFixed(1) + "°C" );
-        pView.gel("#tempOD").html((oOD.temp_c ?? 0).toFixed(1) + "°C" );
-        pView.gel("#humOD").html((oOD.hum ?? 0).toFixed() + "%" );
+        // Get the default maximum rates from the configuration...
+        let fMaxDefaultHourly = pApp.Config.getData("gascounter.maxRateHourly",this.fDefaultMaxRateHourly); 
+        let fMaxDefaultDaily  = pApp.Config.getData("gascounter.maxRateDaily",this.fDefaultMaxRateDaily);
 
+        // Calculate the maximum rates for the charts...
+        let fMaxRateHourly = this.calcMaxRate(oStatus.m3hCurrent,oStatus.m3hLastHour,fMaxDefaultHourly);
+        let fMaxRateDaily  = this.calcMaxRate(oStatus.m3hToday,oStatus.chartPrevday,fMaxDefaultDaily);
+
+        // Now render the charts...
+        this.oCC.render(oStatus.m3hCurrent,     fMaxRateHourly);
+        this.oCL.render(oStatus.m3hLastHour,    fMaxRateHourly);
+        this.oCT.render(oStatus.m3hToday,       fMaxRateDaily);
+        this.oCY.render(oStatus.m3hPrevday,     fMaxDefaultDaily);
         return(oStatus);
-    }
-
-      _createThermo(oBaseElement, oData) {
-        let oParent = CElement.asInstance(oBaseElement);
-        oParent.html(""); 
-        let oThermo = oParent.cce("div").ac("thermo");
-        let oGlas   = oThermo.cce("div").ac("thermo-glas");
-        let oLiquid = oGlas.cce("div").ac("thermo-liquid");
-        let oLabel  = oThermo.cce("div").ac("thermo-label");
-        if(oData.label) oLabel.setText(oData.label)
-        oLiquid.getBase().style.height = oData.height;
-        switch(oData.type) {
-            case "T" :  oLiquid.ac("thermo-temp");
-                        break;
-            case "H" : oLiquid.ac("thermo-humidity");
-                        break;
-        }
-        oGlas.ac("thermo-glas-active");
-        return(oThermo);
-    }
-
-    calcDisplayPercent(fData, fMin = -20, fRange = 60) {
-        return(((fData - fMin) * 100 / fRange).toFixed() + "%")
     }
 }

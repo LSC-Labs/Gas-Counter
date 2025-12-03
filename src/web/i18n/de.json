@@ -137,7 +137,7 @@
     }
   },
   "Device": {
-    "legend": "Wilkommen zu ihrem Taupunkt Schalter",
+    "legend": "Wilkommen zu ihrem '$(prog_name)' Gerät",
     "title": "Setzen Sie den Namen des Gerätes (Hostname) und das Admin Passwort",
     "hostname": {
       "text": "Gerätename",
@@ -211,11 +211,16 @@
   },
   "gasCounter": {},
   "Info": {
-    "legend": "Aktuelle Werte",
+    "legend": "Verbrauch",
     "intern": "Innen",
     "extern": "Außen",
     "dewpoint": "Taupunkt",
     "temp": "Temperatur",
-    "hum": "Feuchtigkeit"
+    "hum": "Feuchtigkeit",
+    "m3hTotal": "Insgesammt",
+    "m3hToday": "Heute",
+    "m3hPrevday": "Gestern",
+    "m3hCurrent": "Aktuell",
+    "m3hLastHour": "Letzte Stunde"
   }
 }

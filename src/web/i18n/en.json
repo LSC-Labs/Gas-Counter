@@ -153,7 +153,7 @@
     }
   },
   "Device": {
-    "legend": "Welcome to your Dew Point Device",
+    "legend": "Welcome to your $(prog_name) Device",
     "title": "Set the name of your device (hostname) and the password for the admin account",
     "hostname": {
       "text": "Host name",
@@ -256,16 +256,34 @@
       "info": "Volume in cubic meters per tick of the gas counter"
     },
     "m3PerTick": {
-      "label": "m³ per Tick",
+      "label": "m³ per tick",
       "info": "Volume in cubic meters per tick of the gas counter"
+    },
+    "maxRateInfo": "Maximum expected gas consumption rates. Used to scale the charts appropriately.",
+    "maxRateHour": {
+      "label": "Expected max m³ per Hour",
+      "info": "Maximum expected volume in cubic meters in one hour."
+    },
+    "maxRateDaily": {
+      "label": "Expected max m³ (day)",
+      "info": "Maximum expected volume in cubic meters per day."
+    },
+    "maxRateHourly": {
+      "label": "Expected max m³ per Hour",
+      "info": "Maximum expected volume in cubic meters in one hour."
     }
   },
   "Info": {
-    "legend": "Current measurements",
+    "legend": "Consuming",
     "intern": "Indoor",
     "extern": "Outdoor",
     "dewpoint": "Dew Point",
     "temp": "Temperature",
-    "hum": "Humidity"
+    "hum": "Humidity",
+    "m3hTotal": "Total",
+    "m3hToday": "Today",
+    "m3hPrevday": "Yesterday",
+    "m3hCurrent": "Actual",
+    "m3hLastHour": "Last hour"
   }
 }

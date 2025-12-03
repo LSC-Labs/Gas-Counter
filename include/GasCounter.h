@@ -7,6 +7,8 @@
 
 struct GasCounterConfig {
     float fUnitPerTick = 0.01; // Default: 0.01 cubic meters per tick
+    float fMaxRateHourly = 2.0; // Default: 2 cubic meters per hour
+    float fMaxRateDaily = 20.0; // Default: 20 cubic meters
 };
 
 struct GasCounterStatus {

@@ -3,79 +3,53 @@
     <legend data-i18n="Info.legend"></legend>
 
     <div class="row">
-        <div class="col-xs-12 col-md-6 chartEnabled">
+        <!-- Actual consuming -->
+        <div class="col-xs-12 col-md-6">
             <div class="chartCard">
-                <div id="chartCurrent" class="chartBox" data-label="Current">
-                    <canvas id="chartCurrentCanvas"></canvas>
-                    <div>
-                        <div class="number"></div>
-                        <div class="label"></div>
+                <div id="chartCurrent" class="chartBox">
+                    <canvas class="chartCanvas"></canvas>
+                    <div class="chartText">
+                        <span class="chartNumber" data-cfg="gascounter_m3hCurrent">0</span><span class="chartMetric"> m³</span>
                     </div>
+                    <div class="chartLabel" data-i18n="Info.m3hCurrent"></div>
                 </div>
             </div>
         </div>
-    </div>
-
-
-    <div class="row">
-        <div class="col-xs-12">
-            <div class="groupPanel">
-                <div class="groupPanelHeader" data-i18n="Info.intern"></div>
-                <div class="row">
-                    <div class="col-xs-offset-1 col-xs-2" id="intTemp" ></div>
-                    <div class="col-xs-2" id="intHumidity" ></div>
-                    <div class="col-xs-6">
-                        <table class="table table-hover table-condensed">
-                            <tr>
-                                <!-- temperature -->
-                                <th data-i18n="Info.temp">bb</th>
-                                <td><span id="tempID"></span></td>
-                            </tr>
-                            <tr>
-                                <!-- dew point -->
-                                <th data-i18n="Info.hum">bb</th>
-                                <td><span id="humID"></span></td>
-                            </tr>
-                            <tr>
-                                <!-- humiditiy -->
-                                <th data-i18n="Info.dewpoint"></th>
-                                <td ><span id="dewPointID"></span></td>
-                            </tr>
-                        </table>
+        <!-- Last hour consuming -->
+        <div class="col-xs-12 col-md-6">
+            <div class="chartCard">
+                <div id="chartLastHour" class="chartBox">
+                    <canvas class="chartCanvas"></canvas>
+                    <div class="chartText">
+                        <span class="chartNumber" data-cfg="gascounter_m3hLastHour">0</span><span class="chartMetric"> m³</span>
                     </div>
+                    <div class="chartLabel" data-i18n="Info.m3hLastHour"></div>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="row">
-        <div class="col-xs-12">
-            <div class="groupPanel">
-                <div class="groupPanelHeader" data-i18n="Info.extern"></div>
-               <div class="row">
-                    <div class="col-xs-offset-1 col-xs-2" id="extTemp" ></div>
-                    <div class="col-xs-2" id="extHumidity" ></div>
-                    <div class="col-xs-6">
-                        <table class="table table-hover table-condensed">
-                            <tr>
-                                <!-- temerature -->
-                                <th data-i18n="Info.temp">bb</th>
-                                <td><span id="tempOD"></span></td>
-                            </tr>
-                            <tr>
-                                <!-- humidity -->
-                                <th data-i18n="Info.hum">bb</th>
-                                <td><span id="humOD"></span></td>
-                            </tr>
-                            <tr>
-                                <!-- dew point -->
-                                <th data-i18n="Info.dewpoint"></th>
-                                <td ><span id="dewPointOD"></span></td>
-                            </tr>
-                        </table>
+        <!-- Today consuming -->
+        <div class="col-xs-12 col-md-6">
+            <div class="chartCard">
+                <div id="chartToday" class="chartBox">
+                    <canvas class="chartCanvas"></canvas>
+                    <div class="chartText">
+                        <span class="chartNumber" data-cfg="gascounter_m3hToday">0</span><span class="chartMetric"> m³</span>
                     </div>
+                    <div class="chartLabel" data-i18n="Info.m3hToday"></div>
                 </div>
-               
             </div>
-       </div>
+        </div>
+         <!-- Yesterday consuming -->
+        <div class="col-xs-12 col-md-6">
+            <div class="chartCard">
+                <div id="chartPrevday" class="chartBox">
+                    <canvas class="chartCanvas"></canvas>
+                    <div class="chartText">
+                        <span class="chartNumber" data-cfg="gascounter_m3hPrevday">0</span><span class="chartMetric"> m³</span>
+                    </div>
+                    <div class="chartLabel" data-i18n="Info.m3hPrevday"></div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>

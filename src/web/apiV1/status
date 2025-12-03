@@ -23,7 +23,7 @@
         "m3hToday": 2.9,
         "m3hPrevday": 5.6,
         "m3hLastHour" : 0.6,
-        "m3hCurrent" : 0.2
+        "m3hCurrent" : 0.3
     },
     "bat": {
             "power": 4.17,

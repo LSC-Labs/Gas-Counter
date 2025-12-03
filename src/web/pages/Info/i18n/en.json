@@ -1,10 +1,10 @@
 {
     "Info": {
-        "legend": "Current measurements",
-        "intern": "Indoor",
-        "extern": "Outdoor",
-        "dewpoint": "Dew Point",
-        "temp": "Temperature",
-        "hum": "Humidity"
-    }
+        "legend"      : "Consuming",
+        "m3hTotal"    : "Total",
+        "m3hToday"    : "Today",
+        "m3hPrevday"  : "Yesterday",
+        "m3hCurrent"  : "Actual",
+        "m3hLastHour" : "Last hour"
+        }
 }
