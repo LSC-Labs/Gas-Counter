@@ -6,14 +6,14 @@
             "label": "m³ per tick",
             "info" : "Volume in cubic meters per tick of the gas counter"
         },
-        "maxRateInfo": "Maximum expected gas consumption rates. Used to scale the charts appropriately.",
+        "maxRateInfo": "Expected gas consumption rates. Used to scale the charts appropriately.",
         "maxRateHourly": {
-            "label": "Expected max m³ per Hour",
-            "info" : "Maximum expected volume in cubic meters in one hour."
+            "label": "max m³ per Hour",
+            "info" : "Expected maximum volume in cubic meters in one hour."
         },
         "maxRateDaily": {
-            "label": "Expected max m³ (day)",
-            "info" : "Maximum expected volume in cubic meters per day."
+            "label": "max m³ (day)",
+            "info" : "Expected volume in cubic meters per day."
         }
     }
 }
