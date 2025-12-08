@@ -48,10 +48,14 @@ void setup() {
   Appl.printDiag();
   Appl.Log.logInfo(F("Initializing services..."));
  
-  // put your setup code here, to run once:
+  // Initialize and start the WiFi
   oWiFiController.startWiFi(bUseConfigData);
   oMqttController.setup();
+
+  // Prepare and start the Web Server
+  oWebServer.addHandler(&oWebSocket);
   registerWebRoutes(oWebServer);  
+  oWebServer.begin();
   
   Appl.Log.logInfo(F("Hello world... - let's start the show!"));
   delay(200);

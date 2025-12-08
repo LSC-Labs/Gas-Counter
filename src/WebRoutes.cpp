@@ -45,6 +45,33 @@ void sendJsonResponse(JsonDocument &oDoc, AsyncWebServerRequest *pRequest) {
     DEBUG_FUNC_END();
 }
 
+void sendLargeZippedBin(AsyncWebServerRequest *pRequest,const char * pszType, const uint8_t tData[], const size_t nDataSize) {
+    DEBUG_FUNC_START_PARMS("%s,%u",pszType,nDataSize);
+   //  const size_t nDataSize = sizeof(tData);
+
+    AsyncWebServerResponse *pResponse = 
+        pRequest->beginChunkedResponse( 
+            pszType,                         
+            [tData,nDataSize](uint8_t *pBuffer, size_t nMaxLen, size_t nAlreadySent) -> size_t {
+                // DEBUG_INFOS("sendLargeBin: maxLen=%u, alreadySent=%u", (unsigned)nMaxLen, (unsigned)nAlreadySent);
+                if (nDataSize - nAlreadySent >= nMaxLen) {
+                    DEBUG_INFO("sendLargeBin: sending full chunk");
+                    memcpy(pBuffer, tData + nAlreadySent, nMaxLen);
+                    return nMaxLen;
+                } else {  // last chunk and then 0
+                    DEBUG_INFO("sendLargeBin: sending last chunk");
+                    memcpy(pBuffer, tData + nAlreadySent, nDataSize - nAlreadySent);
+                    return nDataSize - nAlreadySent; 
+                }
+            }
+        );
+    pResponse->addHeader("Content-Encoding", "gzip");
+    pRequest->send(pResponse);
+    DEBUG_FUNC_END();
+}
+
+
+
 
 
 void registerWebRoutes(CWebServer &oWebServer) {
@@ -114,6 +141,12 @@ void registerWebRoutes(CWebServer &oWebServer) {
 
 
 	oWebServer.on("/js/_runtime.js", HTTP_GET, [](AsyncWebServerRequest *request) {
+        /*sendLargeZippedBin(request,
+                         "text/javascript",
+                         _runtime_js_gz,
+                         _runtime_js_gz_len
+                        );
+        */
         sendGzipResponse(request,
                          request->beginResponse_P(
                             200,
@@ -121,7 +154,10 @@ void registerWebRoutes(CWebServer &oWebServer) {
                             _runtime_js_gz, 
                             _runtime_js_gz_len)
                         );
+        
 	});
+
+    
 
 	oWebServer.on("/js/_pages.js", HTTP_GET, [](AsyncWebServerRequest *request) {
         sendGzipResponse(request,
@@ -165,22 +201,4 @@ void registerWebRoutes(CWebServer &oWebServer) {
 	});
 }
 
-/* touched by page compiler : 1763393136048 */
-/* touched by page compiler : 1763393165500 */
-/* touched by page compiler : 1763393563618 */
-/* touched by page compiler : 1763393742050 */
-/* touched by page compiler : 1763395950737 */
-/* touched by page compiler : 1763396019053 */
-/* touched by page compiler : 1763396054607 */
-/* touched by page compiler : 1763396124046 */
-/* touched by page compiler : 1763409319204 */
-/* touched by page compiler : 1763476660531 */
-/* touched by page compiler : 1763476708378 */
-/* touched by page compiler : 1763476970449 */
-/* touched by page compiler : 1763477315850 */
-/* touched by page compiler : 1763719306900 */
-/* touched by page compiler : 1764239413419 */
-/* touched by page compiler : 1764239574489 */
-/* touched by page compiler : 1764239638423 */
-/* touched by page compiler : 1764239705803 */
-/* touched by page compiler : 1764239948164 */
+/* touched by page compiler : 1765201321785 */

@@ -6,7 +6,6 @@
             "network"   : "Network",
             "mqtt"      : "Message broker",
             "gascounter": "Gas Counter" 
-
         },
         "hostname"  : "Systemname",
         "uptime"    : "Uptime",

@@ -188,14 +188,29 @@
     "installBtn": "Install",
     "noInternet": "It seems, there is no internet connection available or the firmware update server is down."
   },
+  "gasCounter": {
+    "legend": "Gas Counter Settings",
+    "title": "Set the gas counter values and thresholds",
+    "m3PerTick": {
+      "label": "m³ per tick",
+      "info": "Volume in cubic meters per tick of the gas counter"
+    },
+    "maxRateInfo": "Maximum expected gas consumption rates. Used to scale the charts appropriately.",
+    "maxRateHourly": {
+      "label": "Expected max m³ per Hour",
+      "info": "Maximum expected volume in cubic meters in one hour."
+    },
+    "maxRateDaily": {
+      "label": "Expected max m³ (day)",
+      "info": "Maximum expected volume in cubic meters per day."
+    }
+  },
   "Status": {
     "legend": "Status of $(prog_name) Ver.: $(prog_ver)",
     "panel": {
       "device": "Device",
       "network": "Network",
       "mqtt": "Message broker",
-      "dewpoint": "Dew Point switch",
-      "gasCounter": "Gas Counter",
       "gascounter": "Gas Counter"
     },
     "hostname": "Systemname",
@@ -218,28 +233,7 @@
     "disconReason": "Disconnect reason",
     "memOK": "$(sketch_size) Kb used of $(flash_available) Kb => $(flash_used_percent)%",
     "memWarn": "Too less memory to update via OTA ! $(flash_used_percent)% used.",
-    "dewpoints": "Dew Points In / Out",
-    "fan": {
-      "active": "Fan active"
-    },
-    "sensor": {
-      "OD": "Sensor (Outdoor)",
-      "ID": "Sensor (Indoor)",
-      "dewpoint": "DP"
-    },
-    "gasCounter": {
-      "total": "Total consumed",
-      "today": "Today consumed",
-      "prevday": "Yesterday consumed",
-      "actHour": "Actual consuming",
-      "lastHour": "Consumed in last hour"
-    },
     "gascounter": {
-      "total": "Total consumed",
-      "today": "Today consumed",
-      "prevday": "Yesterday consumed",
-      "actHour": "Actual consuming",
-      "lastHour": "Consumed in last hour",
       "m3hTotal": "Total",
       "m3hToday": "Today",
       "m3hPrevday": "Yesterday",
@@ -247,39 +241,8 @@
       "m3hLastHour": "Consumed in last hour"
     }
   },
-  "gasCounter": {
-    "legend": "Gas Counter Settings",
-    "title": "Set the gas counter values and thresholds",
-    "hysteresis": "Hysteresis",
-    "m3hPerTick": {
-      "label": "Volume per Tick (m³)",
-      "info": "Volume in cubic meters per tick of the gas counter"
-    },
-    "m3PerTick": {
-      "label": "m³ per tick",
-      "info": "Volume in cubic meters per tick of the gas counter"
-    },
-    "maxRateInfo": "Maximum expected gas consumption rates. Used to scale the charts appropriately.",
-    "maxRateHour": {
-      "label": "Expected max m³ per Hour",
-      "info": "Maximum expected volume in cubic meters in one hour."
-    },
-    "maxRateDaily": {
-      "label": "Expected max m³ (day)",
-      "info": "Maximum expected volume in cubic meters per day."
-    },
-    "maxRateHourly": {
-      "label": "Expected max m³ per Hour",
-      "info": "Maximum expected volume in cubic meters in one hour."
-    }
-  },
   "Info": {
     "legend": "Consuming",
-    "intern": "Indoor",
-    "extern": "Outdoor",
-    "dewpoint": "Dew Point",
-    "temp": "Temperature",
-    "hum": "Humidity",
     "m3hTotal": "Total",
     "m3hToday": "Today",
     "m3hPrevday": "Yesterday",

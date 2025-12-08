@@ -4,9 +4,7 @@
         "panel" : {
             "device"    : "Gerät",
             "network"   : "Netzwerk",
-            "mqtt"      : "Message Broker",
-            "dewpoint"  : "Taupunkt Schalter" 
-
+            "mqtt"      : "Message Broker" 
         },
         "hostname"  : "Systemname",
         "uptime"    : "Laufzeit",
@@ -27,16 +25,7 @@
         "lastConLost"   : "Ende der letzten Verbindung",
         "disconReason"  : "Ursache des Abbruchs",
         "memOK"         : "$(sketch_size) Kb genutzt von $(flash_available) Kb => $(flash_used_percent)%",
-        "memWarn"       : "Zu wenig Speicher für einen OTA Update! $(flash_used_percent)% genutzt.",
-
-        "fan": {
-            "active": "Lüfter aktiv"
-        },
-        "sensor": {
-            "OD": "Außensensor",
-            "ID": "Innensensor",
-            "dewpoint": "TP"
-        }
+        "memWarn"       : "Zu wenig Speicher für einen OTA Update! $(flash_used_percent)% genutzt."
 
     }
 }
