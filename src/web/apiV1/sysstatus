@@ -1,0 +1,13 @@
+{
+    "full_ver": "2.2.2-dev(38a443e)",
+    "chip_id": "aa2c46",
+    "cpu_clock": 80,
+    "flash_size": 4194304,
+    "flash_real_size": 4194304,
+    "heap_free": 31240,
+    "heap_max": 31120,
+    "sketch_size": 920832,
+    "sketch_free_size": 2224128,
+    "fs_total": 1024000,
+    "fs_used": 16384
+}
