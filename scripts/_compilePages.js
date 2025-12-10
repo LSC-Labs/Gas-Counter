@@ -139,8 +139,28 @@ async function buildHeaderFiles(cb) {
         let changedAccessTime = new Date();
         fs.utimesSync(strTouchFile, changedAccessTime, changedModifiedTime);
 
+        // Read the file into memory...
+        fs.readFile(strTouchFile, 'utf8', function (err,strData) {
+            if (err) {
+                return console.log(err);
+            }
+            let strTouchText = "touched by page compiler : ";
+            let strMatchMask = strTouchText + "\\d*";
+            let oRegEx = new RegExp(strMatchMask, 'g');
+            // If found, replace it, else append it...
+            if(strData.match(oRegEx)) {
+                strData = strData.replace(oRegEx,strTouchText + changedModifiedTime.getTime());
+            } else {
+                strData += "/* " + strTouchText + changedModifiedTime.getTime() + " */\n";
+            }
+            // Write the file back to disk...
+            fs.writeFile(strTouchFile, strData, 'utf8', function (err) {
+                if (err) return console.log(err);
+            });
+            
+        });
         // as touching does not trigger the compile, append a line as comment...
-        fs.appendFileSync(strTouchFile,"/* touched by page compiler : " + changedModifiedTime.getTime() + " */\n");   
+        // fs.appendFileSync(strTouchFile,"/* touched by page compiler : " + changedModifiedTime.getTime() + " */\n");   
     }
     cb();
 }

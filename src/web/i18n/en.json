@@ -153,16 +153,14 @@
     }
   },
   "Device": {
-    "legend": "Welcome to your $(prog_name) Device",
+    "legend": "Welcome to your Dew Point Device",
     "title": "Set the name of your device (hostname) and the password for the admin account",
     "hostname": {
       "text": "Host name",
-      "title": "Enter the hostname here..."
+      "title": "Enter the hostname here...",
+      "info": "enter here..."
     },
-    "password": {
-      "text": "Password",
-      "title": "Enter the password for the admin account"
-    }
+    "password": "Password"
   },
   "SysCfg": {
     "legend": "Backup & Restore",
@@ -177,7 +175,8 @@
       "desc": "Click and choose your file from your local device to be restored.",
       "btn": "Restore Settings",
       "invalidFile": "The file you selected is not a valid backup file..."
-    }
+    },
+    "changePending": "You have uncommited changes, please click here to review and commit."
   },
   "Firmware": {
     "legend": "Firmware update (current firmware: $(prog_ver))",
@@ -195,7 +194,7 @@
       "label": "m³ per tick",
       "info": "Volume in cubic meters per tick of the gas counter"
     },
-    "maxRateInfo": "Maximum expected gas consumption rates. Used to scale the charts appropriately.",
+    "maxRateInfo": "Expected gas consumption rates. Used to scale the charts appropriately.",
     "maxRateHourly": {
       "label": "max m³ per Hour",
       "info": "Expected maximum volume in cubic meters in one hour."
@@ -248,5 +247,8 @@
     "m3hPrevday": "Yesterday",
     "m3hCurrent": "Actual",
     "m3hLastHour": "Last hour"
+  },
+  "login": {
+    "title": "Please enter your device admin password..."
   }
 }
