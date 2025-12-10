@@ -2,8 +2,9 @@
 	path = lib/PLibESPV1
 	url = http://github.com/LSC-Labs/PLibESPV1
 	branch = main
+
 [submodule "doc/ESP-Template/wiki"]
 	path = doc/ESP-Template/wiki
 	url = https://github.com/LSC-Labs/ESP-ProjectTemplate.wiki.git
 	branch = main
-
+	
