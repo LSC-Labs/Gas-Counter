@@ -41,7 +41,7 @@ void setup() {
   Appl.addStatusHandler("mqtt",&oMqttController);
   Appl.addStatusHandler("gascounter",&oGasCounter);
 
-  Appl.init("ESP Template","0.1.0");
+  Appl.init(APP_NAME,APP_VERSION);
   Appl.sayHello();
   
   bool bUseConfigData = Appl.readConfigFrom(CONFIG_FILE);
@@ -66,6 +66,9 @@ void setup() {
 }
 
 void loop() {
+  // Dispatch the WebSocket messages
+  oWebSocket.dispatchMessageQueue();
+
   // put your main code here, to run repeatedly:
   oGasCounter.dispatch();
   
