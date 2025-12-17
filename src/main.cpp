@@ -9,6 +9,7 @@
 #include <WebRoutes.h>
 #include <DevelopmentHelper.h>
 #include <GasCounter.h>
+#include <AppControl.h>
 
 
 CFS oFS;
@@ -17,6 +18,7 @@ CMQTTController oMqttController;
 CWebSocket      oWebSocket("/ws");
 CWebServer      oWebServer(80);
 CGasCounter     oGasCounter(D5);
+CAppControl     oAppControl;
 
 
 #ifdef DEBUGINFOS
@@ -40,6 +42,9 @@ void setup() {
   Appl.addStatusHandler("wifi",&oWiFiController);
   Appl.addStatusHandler("mqtt",&oMqttController);
   Appl.addStatusHandler("gascounter",&oGasCounter);
+
+  Appl.MsgBus.registerEventReceiver(&oAppControl);
+  Appl.MsgBus.registerEventReceiver(&oMqttController);
 
   Appl.init(APP_NAME,APP_VERSION);
   Appl.sayHello();
@@ -71,6 +76,8 @@ void loop() {
 
   // put your main code here, to run repeatedly:
   oGasCounter.dispatch();
+
+  oAppControl.dispatch();
   
   // Send the heartbeat, if configured
   oMqttController.publishHeartBeat();

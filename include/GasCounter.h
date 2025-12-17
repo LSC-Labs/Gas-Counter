@@ -35,28 +35,31 @@ class CGasCounter : CInputPinController, public IConfigHandler, public IStatusHa
     private:
         CSimpleDelay m_oDebounceDelay;
         CSimpleDelay m_oAdjustTimeCountersDelay;
-        GasCounterStatus Status;
-        GasCounterConfig Config;
+       
         void IRAM_ATTR interruptHandler();
         bool getLocalTimeStruct(struct tm *pTimeinfo);
         void storeMinuteValue();
 
-public:
-    CGasCounter();
-    CGasCounter(int nPortNumber);
-    ~CGasCounter();
+    public :
+        GasCounterStatus Status;
+        GasCounterConfig Config;
 
-    void setup(int nPortNumber);
-    void startMonitoring();
-    void dispatch();
+    public:
+        CGasCounter();
+        CGasCounter(int nPortNumber);
+        ~CGasCounter();
 
-    void writeConfigTo(JsonObject &oCfgNode, bool bHideCritical) override;
-    void readConfigFrom(JsonObject &oCfgNode) override;
-    void writeStatusTo(JsonObject &oStatusNode) override;
+        void setup(int nPortNumber);
+        void startMonitoring();
+        void dispatch();
 
-    unsigned long getCurrentGasCounter();
-    float getConsumedCubicMetersInLastHour();
-    float getCurrentConsumedCubicMeters();
+        void writeConfigTo(JsonObject &oCfgNode, bool bHideCritical) override;
+        void readConfigFrom(JsonObject &oCfgNode) override;
+        void writeStatusTo(JsonObject &oStatusNode) override;
+
+        unsigned long getCurrentGasCounter();
+        float getConsumedCubicMetersInLastHour();
+        float getCurrentConsumedCubicMeters();
 
 
 };
