@@ -1,9 +1,14 @@
 /**
  * CAppControl.cpp
+ *
+ * (c) 2024/25 LSC Labs - P. Liebl 
  * 
  * Application Control Module
  * Use this module to implement the main application logic.
  *
+ * Receives events from all modules and dispatches actions accordingly.
+ * GasCounter tick events are stored and dispatched in batch to avoid
+ * processing within the interrupt handler.
  *  
  */
 
