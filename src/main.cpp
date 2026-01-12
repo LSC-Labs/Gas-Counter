@@ -22,7 +22,7 @@ CWebServer      oWebServer(80);
 CGasCounter     oGasCounter(D5);
 CAppControl     oAppControl;
 CMDNSController oMDNSController;
-CStatusLed      oStatusLed(D1,D2,D3); // RGB LED on D1=Red, D2=Green, D3=Blue
+CStatusLed      oStatusLed(D6,D5,D0,false); // RGB LED on D6=Red, D5=Green, D0=Blue
 
 
 #ifdef DEBUGINFOS

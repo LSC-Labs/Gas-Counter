@@ -12,7 +12,7 @@ class CStatusLed : public CSysStatusLed {
         CSimpleDelay _tickDelay;
 
     public:
-        CStatusLed(int nRedPin, int nGreenPin, int nBluePin) : CSysStatusLed(nRedPin, nGreenPin, nBluePin, true) {
+        CStatusLed(int nRedPin, int nGreenPin, int nBluePin, bool bActiveLow = false) : CSysStatusLed(nRedPin, nGreenPin, nBluePin, bActiveLow) {
             _tickDelay.start( 500, false  );
         };
 
