@@ -10,6 +10,8 @@
 #include <DevelopmentHelper.h>
 #include <GasCounter.h>
 #include <AppControl.h>
+#include <MDNSController.h>
+#include <StatusLed.h>
 
 
 CFS oFS;
@@ -19,6 +21,8 @@ CWebSocket      oWebSocket("/ws");
 CWebServer      oWebServer(80);
 CGasCounter     oGasCounter(D5);
 CAppControl     oAppControl;
+CMDNSController oMDNSController;
+CStatusLed      oStatusLed(D1,D2,D3); // RGB LED on D1=Red, D2=Green, D3=Blue
 
 
 #ifdef DEBUGINFOS
@@ -71,6 +75,10 @@ void setup() {
 }
 
 void loop() {
+
+  // Dispatch application actions (registered controller)
+  Appl.dispatch();
+
   // Dispatch the WebSocket messages
   oWebSocket.dispatchMessageQueue();
 
