@@ -8,6 +8,8 @@
 #include <Appl.h>
 #include <AppConfig.h>
 
+#pragma region Constructor, Desctrutor and Setup
+
 CGasCounter::CGasCounter()
     : IConfigHandler()
     , IStatusHandler()
@@ -29,6 +31,61 @@ void CGasCounter::setup(int nPortNumber)
 {
     CInputPinController(nPortNumber, true, true);
 }
+
+/**
+ * @brief Dispatch method to be called in the main loop on a regular base
+ */
+void CGasCounter::dispatch() {
+    
+    if(m_oAdjustTimeCountersDelay.isDone()) {
+        m_oAdjustTimeCountersDelay.restart();
+        struct tm tmLocal;
+        getLocalTimeStruct(&tmLocal);
+        
+        if(tmLocal.tm_hour == 0 && tmLocal.tm_min == 0) {
+            // Reset today counter at midnight
+            Status.fYesterdayConsumedValue = Status.fTodayConsumedValue;
+            Status.fTodayConsumedValue = 0.0;
+        }
+        storeMinuteValue();
+    }
+    // Placeholder for future dispatch logic if needed
+}
+
+#pragma endregion
+
+#pragma Interface implementation
+
+void CGasCounter::writeConfigTo(JsonNode &oCfgNode, bool bHideCritical)
+{
+    oCfgNode["m3PerTick"]       = Config.fUnitPerTick;
+    oCfgNode["maxRateHourly"]   = Config.fMaxRateHourly;  // Implementation to write configuration to JSON object
+    oCfgNode["maxRateDaily"]    = Config.fMaxRateDaily;
+    // Implementation to write configuration to JSON object
+}
+
+void CGasCounter::readConfigFrom(JsonNode &oCfgNode)
+{
+    oCfgNode.storeValueIf("m2hPerTick",     &Config.fUnitPerTick);
+    oCfgNode.storeValueIf("maxRateHourly",  &Config.fMaxRateHourly);
+    oCfgNode.storeValueIf("maxRateDaily",   &Config.fMaxRateDaily);
+}
+
+void CGasCounter::writeStatusTo(JsonNode &oStatusNode, int nLevel)
+{
+    oStatusNode["TickCounter"]     = Status.ulTotalTickCounter;
+    oStatusNode["m3hPerTick"]      = Config.fUnitPerTick;
+    oStatusNode["m3hTotal"]        = Status.fTotalConsumedValue;
+    oStatusNode["m3hToday"]        = Status.fTodayConsumedValue;
+    oStatusNode["m3hPrevday"]      = Status.fYesterdayConsumedValue;
+    oStatusNode["m3hLastHour"]     = getConsumedCubicMetersInLastHour();
+    oStatusNode["m3hCurrent"]      = getCurrentConsumedCubicMeters();
+}
+
+#pragma endregion
+
+
+#pragma Interrupt Handling and Monitoring
 
 /**
  * @brief Start monitoring the gas counter input pin
@@ -70,6 +127,10 @@ void IRAM_ATTR CGasCounter::interruptHandler() {
     interrupts();
 }
 
+#pragma endregion
+
+
+
 void CGasCounter::storeMinuteValue() 
 {
     struct tm tmLocal;
@@ -103,51 +164,6 @@ bool CGasCounter::getLocalTimeStruct(struct tm *pTimeinfo)
     return(bResult);
 }
 
-/**
- * @brief Dispatch method to be called in the main loop on a regular base
- */
-void CGasCounter::dispatch() {
-    
-    if(m_oAdjustTimeCountersDelay.isDone()) {
-        m_oAdjustTimeCountersDelay.restart();
-        struct tm tmLocal;
-        getLocalTimeStruct(&tmLocal);
-        
-        if(tmLocal.tm_hour == 0 && tmLocal.tm_min == 0) {
-            // Reset today counter at midnight
-            Status.fYesterdayConsumedValue = Status.fTodayConsumedValue;
-            Status.fTodayConsumedValue = 0.0;
-        }
-        storeMinuteValue();
-    }
-    // Placeholder for future dispatch logic if needed
-}
-
-void CGasCounter::writeConfigTo(JsonObject &oCfgNode, bool bHideCritical)
-{
-    oCfgNode["m3PerTick"]       = Config.fUnitPerTick;
-    oCfgNode["maxRateHourly"]   = Config.fMaxRateHourly;  // Implementation to write configuration to JSON object
-    oCfgNode["maxRateDaily"]    = Config.fMaxRateDaily;
-    // Implementation to write configuration to JSON object
-}
-
-void CGasCounter::readConfigFrom(JsonObject &oCfgNode)
-{
-    Config.fUnitPerTick     = oCfgNode["m3hPerTick"]    | 0.01;
-    Config.fMaxRateHourly   = oCfgNode["maxRateHourly"] | 2.0;
-    Config.fMaxRateDaily    = oCfgNode["maxRateDaily"]  | 20.0;
-}
-
-void CGasCounter::writeStatusTo(JsonObject &oStatusNode)
-{
-    oStatusNode["TickCounter"]     = Status.ulTotalTickCounter;
-    oStatusNode["m3hPerTick"]      = Config.fUnitPerTick;
-    oStatusNode["m3hTotal"]        = Status.fTotalConsumedValue;
-    oStatusNode["m3hToday"]        = Status.fTodayConsumedValue;
-    oStatusNode["m3hPrevday"]      = Status.fYesterdayConsumedValue;
-    oStatusNode["m3hLastHour"]     = getConsumedCubicMetersInLastHour();
-    oStatusNode["m3hCurrent"]      = getCurrentConsumedCubicMeters();
-}
 
 /**
  * @brief Get the consumed cubic meters in the last hour

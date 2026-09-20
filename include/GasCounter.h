@@ -1,5 +1,4 @@
 #pragma once
-#include <ArduinoJson.h>
 #include <InputPinController.h>
 #include <ConfigHandler.h>
 #include <StatusHandler.h>
@@ -53,9 +52,9 @@ class CGasCounter : CInputPinController, public IConfigHandler, public IStatusHa
         void startMonitoring();
         void dispatch();
 
-        void writeConfigTo(JsonObject &oCfgNode, bool bHideCritical) override;
-        void readConfigFrom(JsonObject &oCfgNode) override;
-        void writeStatusTo(JsonObject &oStatusNode) override;
+        void writeConfigTo(JsonNode &oCfgNode, bool bHideCritical) override;
+        void readConfigFrom(JsonNode &oCfgNode) override;
+        void writeStatusTo(JsonNode &oStatusNode, int nLevel) override;
 
         unsigned long getCurrentGasCounter();
         float getConsumedCubicMetersInLastHour();

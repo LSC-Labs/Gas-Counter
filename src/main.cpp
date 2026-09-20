@@ -27,8 +27,7 @@ CStatusLed      oStatusLed(D6,D5,D0,false); // RGB LED on D6=Red, D5=Green, D0=B
 
 #ifdef DEBUGINFOS
 void runDebugTests() {
-  JsonDocument oCfg;
-  JsonObject oCfgNode = oCfg.to<JsonObject>();
+  JsonNode oCfgNode;
   Appl.writeConfigTo(oCfgNode,false);
   DEBUG_INFO("Current configuration:");
   DEBUG_JSON_OBJ(oCfgNode);
@@ -72,6 +71,7 @@ void setup() {
   #ifdef DEBUGINFOS
     runDebugTests();
   #endif
+  Appl.start();
 }
 
 void loop() {
@@ -79,14 +79,9 @@ void loop() {
   // Dispatch application actions (registered controller)
   Appl.dispatch();
 
-  // Dispatch the WebSocket messages
-  oWebSocket.dispatchMessageQueue();
-
   // put your main code here, to run repeatedly:
   oGasCounter.dispatch();
 
   oAppControl.dispatch();
   
-  // Send the heartbeat, if configured
-  oMqttController.publishHeartBeat();
 }
