@@ -18,6 +18,7 @@ const ChartPlugins = {
      */
     gaugeNeedle : {
         id: 'gaugeNeedle',
+    /** Zeichnet die zusätzliche Instrumentdarstellung nach dem Datensatz. */
         afterDatasetDraw(chart, args, plugins) {
             const { ctx, data } = chart;
             const nChartPercentWidth = chart.width / ChartPlugins.Defaults.ChartWidth;
@@ -86,6 +87,7 @@ const ChartPlugins = {
     gaugeFlowMeter : {
         // see also : https://www.youtube.com/watch?v=QWo6E2zCwGw
         id: 'gaugeFlowMeter',
+    /** Zeichnet die zusätzliche Instrumentdarstellung nach dem Datensatz. */
         afterDatasetDraw(chart, args, plugins) {
             const { ctx, data } = chart;
             ctx.save();
@@ -129,6 +131,7 @@ const ChartPlugins = {
 
     gaugeLabels : {
         id: 'gaugeLabels',
+    /** Zeichnet die zusätzliche Instrumentdarstellung nach dem Datensatz. */
         afterDatasetDraw(chart, args, plugins) {
             const { ctx, chartArea: { left, right } } = chart;
             const percentageWidth = chart.width / ChartPlugins.Defaults.ChartWidth;
@@ -214,6 +217,7 @@ class CTachoChart {
     // #endregion
 
 
+    /** Bindet Diagramm und Textfallback an die DOM-Elemente des Instruments. */
     constructor(oChartNode) {
         this.oChartNode = EC(oChartNode)
         this.chartWidth = oChartNode.getBoundingClientRect().width - 40;
@@ -227,12 +231,14 @@ class CTachoChart {
         this.showSections();
     }
 
+    /** Zeigt je nach Verfügbarkeit von Chart.js Diagramm oder Textfallback. */
     showSections() {
         let bIsChartJSAvailable = this.isChartJSAvailable();
         this.oChartText.hide(bIsChartJSAvailable);
         this.oChartCanvas.show(bIsChartJSAvailable);
         return(bIsChartJSAvailable);
     }
+    /** Zeichnet eine bereits erzeugte Chart.js-Instanz erneut; nValue bleibt ungenutzt. */
     updateChart(nValue) {
         this.oChart.update();
     }
@@ -276,6 +282,7 @@ class CTachoChart {
 
     // #region ChartJS Custom Plugins for the Gauge Chart
    
+    /** Prüft, ob der Chart.js-Konstruktor geladen wurde. */
     isChartJSAvailable() { return typeof Chart === 'function' }
     // #endregion
 
@@ -291,6 +298,7 @@ class CInfoPage extends CPageHandler {
 
     fDefaultMaxRateDaily = 10.0;
     fDefaultMaxRateHourly = 5.0;
+    /** Verbindet den Seitenhandler mit der Anwendungskonfiguration. */
     constructor(oApp) {
         // don't use this, before initialized !
         super("info",new CElement("#InfoPage"),oApp.Config);
@@ -300,6 +308,7 @@ class CInfoPage extends CPageHandler {
 
     
     // #region Update Status on a regular base
+    /** Beendet das periodische Nachladen beim Verlassen der Seite. */
     disposePage(pView, pApp) {
         super.disposePage(pView, pApp);
         this.RefreshTimer = clearInterval(this.RefreshTimer);
@@ -310,12 +319,14 @@ class CInfoPage extends CPageHandler {
         this.oCY = undefined;
     }
 
+    /** Aktiviert die Statusabfrage im Abstand von fünf Sekunden. */
     preparePage(pView, pApp) {
         super.preparePage(pView, pApp);
         // Set an interval to refresh the status infos every 5 seconds...
         this.RefreshTimer = setInterval( this.refreshStatus.bind(this, pView, pApp), 5000);
     }
     
+    /** Fordert neue Gerätestatusdaten über die Anwendung an. */
     refreshStatus(pView, pApp) {
         pApp.requestActStatus();
     }

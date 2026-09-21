@@ -32,7 +32,7 @@
 #endif
 
 
-// Message ID for gas counter tick event - keep processing short, you are in an interrupt!
+// Gas counter tick event, emitted by CGasCounter::dispatch() in the main loop.
 #define MSG_GASCOUNTER_TICK     (MSG_USER_BASE + 20)
 
 

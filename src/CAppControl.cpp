@@ -8,7 +8,7 @@
  *
  * Receives events from all modules and dispatches actions accordingly.
  * GasCounter tick events are stored and dispatched in batch to avoid
- * processing within the interrupt handler.
+ * publishing nested state messages from the tick event handler.
  *  
  */
 
@@ -20,11 +20,18 @@
 #include <GasCounter.h>
 
 
+/**
+ * @brief Erzeugt die Anwendungssteuerung mit leerer Impulswarteschlange.
+ */
 CAppControl::CAppControl()
 {
     // Constructor implementation (if needed)
 }   
 
+/**
+ * @brief Merkt Impulsvolumen und Empfangszeit zur späteren MQTT-Veröffentlichung.
+ * CGasCounter sendet diese Ereignisse aus dispatch(), niemals aus dem Interrupt.
+ */
 int CAppControl::receiveEvent(const void* pSender, int nMsgID, const void * pMsg, int nMsgClass)
 {
     int nResult = EVENT_MSG_RESULT_OK;
@@ -64,6 +71,8 @@ void CAppControl::dispatch()
     {
         char tTimeBuffer[25];
         JsonNode oMsgDoc;
+        // Include the registered component states used by Home Assistant discovery.
+        Appl.writeStatusTo(oMsgDoc, STATUS_LEVEL_STATE);
         oMsgDoc["type"]         = "tick";
         oMsgDoc["unitPerTick"]  = pTickMsg->fUnitPerTick;
         oMsgDoc["timestamp"]    = pTickMsg->oTimeStamp;

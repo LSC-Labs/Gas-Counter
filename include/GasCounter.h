@@ -2,7 +2,8 @@
 #include <InputPinController.h>
 #include <ConfigHandler.h>
 #include <StatusHandler.h>
-#include <SimpleDelay.h>
+#include <stdint.h>
+#include <MQTTController.h>
 
 struct GasCounterConfig {
     float fUnitPerTick = 0.01; // Default: 0.01 cubic meters per tick
@@ -11,16 +12,16 @@ struct GasCounterConfig {
 };
 
 struct GasCounterStatus {
-    volatile unsigned long ulTotalTickCounter = 0;  // Number of total ticks counted since power on
-    volatile unsigned long ulLastCountInMillis = 0;   // Last tick in millis
-    volatile unsigned long ulPeriodTimeMillis = 0;  // Last period since previous tick in millis
+    unsigned long ulTotalTickCounter = 0;  // Number of total ticks counted since power on
+    unsigned long ulLastCountInMillis = 0;   // Last tick in millis
+    unsigned long ulPeriodTimeMillis = 0;  // Last period since previous tick in millis
 
-    float tfMinuteValues[60] = {0.0};       // Storage of last 60 minute values
-    unsigned int nCurrentMinuteIndex = 0;   // Current minute as index in the minute values array
+    float tfMinuteValues[60] = {0.0};       // Verbrauch pro Minute, unabhängig von Kalenderzeit (m³)
+    unsigned int nCurrentMinuteIndex = 0;   // Index des aktuellen Minutenintervalls (0 bis 59)
 
-    volatile float fTotalCounter = 0.0; 
-    volatile float fTotalConsumedValue = 0.0;   // Total consumed value in cubic meters
-    volatile float fTodayConsumedValue = 0.0;   // Consumed value today in cubic meters
+    float fTotalCounter = 0.0;
+    float fTotalConsumedValue = 0.0;   // Total consumed value in cubic meters
+    float fTodayConsumedValue = 0.0;   // Consumed value today in cubic meters
     float fYesterdayConsumedValue = 0.0; // Consumed value yesterday in cubic meters
     
 };
@@ -29,11 +30,20 @@ struct GasCounterStatus {
  * Either use the constructor with the port number or call setup() later
  * to initialize the gas counter on a specific port.
  */
-class CGasCounter : CInputPinController, public IConfigHandler, public IStatusHandler
+class CGasCounter : CInputPinController, public IConfigHandler, public IStatusHandler, public IHomeAssistantComponent
 {
     private:
-        CSimpleDelay m_oDebounceDelay;
-        CSimpleDelay m_oAdjustTimeCountersDelay;
+        // Ausschließlich Ganzzahlen im ISR; Übernahme im Loop unter InterruptLock.
+        volatile uint32_t m_ulPendingTicks = 0;
+        volatile uint32_t m_ulLastTickMillis = 0;
+        volatile uint32_t m_ulTickPeriodMillis = 0;
+        volatile bool m_bHasTick = false;
+        bool m_bMonitoring = false;
+        bool m_bMinuteClockStarted = false;
+        uint32_t m_ulMinuteStartedAt = 0;
+        long m_lCurrentDay = -1;
+
+        void adjustDayCounters();
        
         void IRAM_ATTR interruptHandler();
         bool getLocalTimeStruct(struct tm *pTimeinfo);
@@ -48,6 +58,7 @@ class CGasCounter : CInputPinController, public IConfigHandler, public IStatusHa
         CGasCounter(int nPortNumber);
         ~CGasCounter();
 
+        void insertComponentDiscovery(const char * pszComponentName,JsonNode & oComponents, CMQTTController *pController) override;
         void setup(int nPortNumber);
         void startMonitoring();
         void dispatch();

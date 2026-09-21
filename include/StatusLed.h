@@ -12,6 +12,9 @@ class CStatusLed : public CSysStatusLed {
         CSimpleDelay _tickDelay;
 
     public:
+/**
+ * @brief Initialisiert RGB-Kanäle und bereitet den zunächst inaktiven Impulstimer vor.
+ */
         CStatusLed(int nRedPin, int nGreenPin, int nBluePin, bool bActiveLow = false) : CSysStatusLed(nRedPin, nGreenPin, nBluePin, bActiveLow) {
             _tickDelay.start( 500, false  );
         };

@@ -27,6 +27,9 @@
 #include <web/en.json.gz.h>
 
 
+/**
+ * @brief Kennzeichnet eine bereits komprimierte Antwort als gzip und sendet sie.
+ */
 void sendGzipResponse(AsyncWebServerRequest *pRequest, AsyncWebServerResponse *pResponse) {
     DEBUG_FUNC_START();
     DEBUG_INFOS("WEB: %s",pRequest->url().c_str());
@@ -35,16 +38,24 @@ void sendGzipResponse(AsyncWebServerRequest *pRequest, AsyncWebServerResponse *p
     DEBUG_FUNC_END();
 }
 
-void sendJsonResponse(JsonDocument &oDoc, AsyncWebServerRequest *pRequest) {
+/**
+ * @brief Serialisiert einen JSON-Knoten in eine HTTP-Antwort mit application/json.
+ */
+void sendJsonResponse(JsonNode &oDoc, AsyncWebServerRequest *pRequest) {
     DEBUG_FUNC_START();
     DEBUG_INFOS("WEB: %s",pRequest->url().c_str());
     DEBUG_JSON_OBJ(oDoc);
     AsyncResponseStream *pStream =  pRequest->beginResponseStream(F("application/json"));
-    serializeJson(oDoc, *pStream);
+    pStream->write(oDoc.getAsJsonText());
+    // serializeJson(oDoc, *pStream);
     pRequest->send(pStream);
     DEBUG_FUNC_END();
 }
 
+/**
+ * @brief Sendet einen dauerhaft gültigen gzip-Datenpuffer abschnittsweise.
+ * Der Callback liefert am Pufferende null Bytes und beendet damit die Antwort.
+ */
 void sendLargeZippedBin(AsyncWebServerRequest *pRequest,const char * pszType, const uint8_t tData[], const size_t nDataSize) {
     DEBUG_FUNC_START_PARMS("%s,%u",pszType,nDataSize);
    //  const size_t nDataSize = sizeof(tData);
@@ -74,6 +85,9 @@ void sendLargeZippedBin(AsyncWebServerRequest *pRequest,const char * pszType, co
 
 
 
+/**
+ * @brief Registriert Standard- und Dateizugriffsrouten, eingebettete Webdateien und Status-APIs.
+ */
 void registerWebRoutes(CWebServer &oWebServer) {
     oWebServer.registerDefaults();
     oWebServer.registerFileAccess();
@@ -189,13 +203,15 @@ void registerWebRoutes(CWebServer &oWebServer) {
 	});
     
     oWebServer.on("/apiV1/status", HTTP_GET, [](AsyncWebServerRequest *request) {
-        JSON_DOC(oStatus,4096);
-        Appl.writeStatusTo(oStatus);
+        // JSON_DOC(oStatus,4096);
+        JsonNode oStatus;
+        Appl.writeStatusTo(oStatus,STATUS_LEVEL_INFO);
         sendJsonResponse(oStatus,request);
 	});
     
     oWebServer.on("/apiV1/sysstatus", HTTP_GET, [](AsyncWebServerRequest *request) {
-        JSON_DOC(oStatus,2048);
+        // JSON_DOC(oStatus,2048);
+        JsonNode oStatus;
         Appl.writeSystemStatusTo(oStatus);
         sendJsonResponse(oStatus,request);
 	});

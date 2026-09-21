@@ -16,6 +16,9 @@ class GasCounterTickMsg
         time_t oTimeStamp;
         float fUnitPerTick;
 
+/**
+ * @brief Erfasst Empfangszeit und Impulsvolumen; pSender muss auf einen gültigen Zähler zeigen.
+ */
         GasCounterTickMsg(CGasCounter * pSender) {
             time(&oTimeStamp);
             fUnitPerTick = pSender->Config.fUnitPerTick;

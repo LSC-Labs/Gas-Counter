@@ -7,6 +7,7 @@ class CStatusPage extends CPageHandler {
      * 
      * @param {CAPP} oApp 
      */
+    /** Verbindet den Seitenhandler mit der Anwendungskonfiguration. */
     constructor(oApp) {
         // don't use this, before initialized !
         super("status",new CElement("#StatusPage"),oApp.Config);
@@ -16,18 +17,21 @@ class CStatusPage extends CPageHandler {
 
         
     // #region Update Status on a regular base
+    /** Beendet das periodische Nachladen beim Verlassen der Seite. */
     disposePage(pView, pApp) {
         super.disposePage(pView, pApp);
         this.RefreshTimer = clearInterval(this.RefreshTimer);
         this.RefreshTimer = null;
     }
 
+    /** Aktiviert die Statusabfrage im Abstand von fünf Sekunden. */
     preparePage(pView, pApp) {
         super.preparePage(pView, pApp);
         // Set an interval to refresh the status infos every 5 seconds...
         this.RefreshTimer = setInterval( this.refreshStatus.bind(this, pView, pApp), 5000);
     }
     
+    /** Fordert neue Gerätestatusdaten über die Anwendung an. */
     refreshStatus(pView, pApp) {
         pApp.requestActStatus();
     }

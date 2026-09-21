@@ -3,6 +3,10 @@
 #include <AppConfig.h>
 
 
+/**
+ * @brief Startet bei einem Impuls die LED-Anzeige und verarbeitet Loop-Ereignisse.
+ * Andere Ereignisse werden an die Systemstatus-LED weitergereicht.
+ */
 int CStatusLed::receiveEvent(const void * pSender, int nMsgId, const void * pMessage, int nType) {
     int nResult = EVENT_MSG_RESULT_OK;
     switch(nMsgId) {
@@ -26,6 +30,10 @@ int CStatusLed::receiveEvent(const void * pSender, int nMsgId, const void * pMes
     return(nResult);
 }
 
+/**
+ * @brief Priorisiert die gelbe Impulsanzeige vor dem normalen Systemstatus.
+ * Achtung: isExpired() prüft nur ein explizites Flag, nicht den Zeitablauf.
+ */
 void CStatusLed::updateLED() {
     if(_tickDelay.isActive()) {
         // During tick, just check if delay is complete
