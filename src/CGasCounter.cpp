@@ -16,8 +16,7 @@
  * @brief Erzeugt einen Zähler ohne zugewiesenen Eingang; Monitoring muss separat gestartet werden.
  */
 CGasCounter::CGasCounter()
-    : IConfigHandler()
-    , IStatusHandler()
+    : IModule(), IHomeAssistantComponent()
 {
 }
 
@@ -25,8 +24,7 @@ CGasCounter::CGasCounter()
  * @brief Ruft die Eingangskonfiguration auf; registriert noch keinen Interrupt.
  */
 CGasCounter::CGasCounter(int nPortNumber)
-    : IConfigHandler()
-    , IStatusHandler()
+    : IModule(), IHomeAssistantComponent()
 {
     setup(nPortNumber);
 }
@@ -159,6 +157,11 @@ void CGasCounter::writeStatusTo(JsonNode &oStatusNode, int nLevel)
     oStatusNode["m3hPrevday"]      = Status.fYesterdayConsumedValue;
     oStatusNode["m3hLastHour"]     = getConsumedCubicMetersInLastHour();
     oStatusNode["m3hCurrent"]      = getCurrentConsumedCubicMeters();
+}
+
+int CGasCounter::receiveEvent(const void * pSender, int nMsg, const void * pMessage, int nMsgInfo) {
+    // Currently not used; placeholder for future event handling.
+    return EVENT_MSG_RESULT_OK ;
 }
 
 /**

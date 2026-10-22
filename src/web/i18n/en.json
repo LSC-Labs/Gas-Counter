@@ -1,6 +1,6 @@
 {
-  "_language": "English",
   "menu": {
+    "title": "$(prog_name)",
     "signin": "Sign in",
     "signout": "Sign out",
     "Support": "Feedback / Ticket",
@@ -36,8 +36,6 @@
     }
   },
   "System": {
-    "title": "Restart or Reset",
-    "desc": "Restart or Reset the device",
     "Restart": {
       "btn": "Restart Device",
       "title": "Restart Device",
@@ -51,10 +49,11 @@
       "desc": "All settings will be dropped, the device will reboot with factory settings.",
       "confirm": "Are you sure you want to reset the device to factory defaults? The device will restart in delivery state.",
       "waitmsg": "Please wait while the device is resetting to factory defaults..."
-    }
+    },
+    "title": "Restart or Reset",
+    "desc": "Restart or Reset the device"
   },
   "WiFi": {
-    "legend": "Wi-Fi Settings",
     "scan": {
       "title": "Scanning WiFi - please wait...",
       "titleDone": "Select a WiFi to use...",
@@ -111,50 +110,57 @@
     "STA": {
       "type": "Client",
       "desc": "Type your Wi-Fi Network's SSID or press 'Scan' for nearby Wireless Networks to join."
-    }
+    },
+    "legend": "Wi-Fi Settings"
   },
   "MQTT": {
-    "title": "Message Broker",
     "desc": {
-      "enable": "Enable the message broker to use this service.",
-      "configure": "Configure the message broker or disable to stop the service."
+      "enable": "Enable the message broker to use this service",
+      "configure": "Configure the message broker or disable to stop the service"
     },
     "enable": {
       "label": "MQTT Support",
-      "info": "Enable or disable the MQTT support."
+      "info": "Enable or disable the MQTT support"
     },
     "host": {
       "label": "Host",
-      "info": "MQTT Server host name, IP address or url."
+      "info": "MQTT Server host name, IP address or url"
     },
     "port": {
       "label": "Port",
-      "info": "MQTT server port."
+      "info": "MQTT server port"
     },
     "user": {
       "label": "User",
-      "info": "MQTT technical user to login."
+      "info": "MQTT technical user to login"
     },
     "passwd": {
       "label": "Password",
-      "info": "Password of the technical login user."
+      "info": "Password of the technical login user"
     },
     "topic": {
       "label": "Topic prefix",
-      "info": "Prefix applied to all MQTT topics."
+      "info": "Prefix applied to all MQTT topics"
     },
     "autotopic": {
       "label": "Auto topic",
-      "info": "Automatically add a unique identifier (last 6 digits of MAC address) to the MQTT topic prefix."
+      "info": "Automatically add a unique identifier (last 6 digits of MAC address) to the MQTT topic prefix"
     },
     "syncrate": {
       "label": "Sync time (seconds)",
-      "info": "Sync time to send a heartbeat message to the MQTT server."
-    }
+      "info": "Sync time to send a heartbeat message to the MQTT server"
+    },
+    "ha": {
+      "label": "Home Assistant Support",
+      "info": "Enable or disable MQTT support for Home Assistant"
+    },
+    "hatopic": {
+      "label": "Home Assistant Topic",
+      "info": "Topic prefix for Home Assistant integration (see your Home Assistant MQTT implementation)"
+    },
+    "title": "Message Broker"
   },
   "Device": {
-    "legend": "Welcome to your $(prog_name) Device",
-    "title": "Set the name of your device (hostname) and the password for the admin account",
     "hostname": {
       "text": "Host name",
       "title": "Enter the hostname here..."
@@ -162,11 +168,11 @@
     "password": {
       "text": "Password",
       "title": "Enter the password for the admin account"
-    }
+    },
+    "legend": "Welcome to your $(prog_name) Device",
+    "title": "Set the name of your device (hostname) and the password for the admin account"
   },
   "SysCfg": {
-    "legend": "Backup & Restore",
-    "title": "Backup or Restore the device configuration. Be aware, the backup file is <b>NOT</b> encrypted.<br/> Store it on a safe place to avoid loosing your access credentials...",
     "Backup": {
       "title": "Backup Settings",
       "desc": "Save the config to a backup file.",
@@ -177,25 +183,26 @@
       "desc": "Click and choose your file from your local device to be restored.",
       "btn": "Restore Settings",
       "invalidFile": "The file you selected is not a valid backup file..."
-    }
+    },
+    "legend": "Backup & Restore",
+    "title": "Backup or Restore the device configuration. Be aware, the backup file is <b>NOT</b> encrypted.<br/> Store it on a safe place to avoid loosing your access credentials..."
   },
   "Firmware": {
     "legend": "Firmware update (current firmware: $(prog_ver))",
     "title": "Firmware update is possible. Make a backup first, before updating to avoid loss of data.",
-    "latest": "Current available version online",
+    "latest": "Newest version online",
+    "history": "Firmware update history",
+    "releasePage": "...see all releases on GitHub",
     "install": "Select the version you want to install",
     "downloadBtn": "Download",
     "installBtn": "Install",
     "noInternet": "It seems, there is no internet connection available or the firmware update server is down."
   },
   "gasCounter": {
-    "legend": "Gas Counter Settings",
-    "title": "Set the gas counter values and thresholds",
     "m3PerTick": {
       "label": "m³ per tick",
       "info": "Volume in cubic meters per tick of the gas counter"
     },
-    "maxRateInfo": "Expected gas consumption rates. Used to scale the charts appropriately.",
     "maxRateHourly": {
       "label": "max m³ per Hour",
       "info": "Expected maximum volume in cubic meters in one hour."
@@ -203,16 +210,26 @@
     "maxRateDaily": {
       "label": "max m³ (day)",
       "info": "Expected volume in cubic meters per day."
-    }
+    },
+    "legend": "Gas Counter Settings",
+    "title": "Set the gas counter values and thresholds",
+    "maxRateInfo": "Expected gas consumption rates. Used to scale the charts appropriately."
   },
   "Status": {
-    "legend": "Status of $(prog_name) Ver.: $(prog_ver)",
     "panel": {
       "device": "Device",
       "network": "Network",
       "mqtt": "Message broker",
       "gascounter": "Gas Counter"
     },
+    "gascounter": {
+      "m3hTotal": "Total",
+      "m3hToday": "Today",
+      "m3hPrevday": "Yesterday",
+      "m3hCurrent": "Actual consuming",
+      "m3hLastHour": "Consumed in last hour"
+    },
+    "legend": "Status of $(prog_name) Ver.: $(prog_ver)",
     "hostname": "Systemname",
     "uptime": "Uptime",
     "flashSize": "Flash size",
@@ -232,14 +249,7 @@
     "lastConLost": "Last Connection lost",
     "disconReason": "Disconnect reason",
     "memOK": "$(sketch_size) Kb used of $(flash_available) Kb => $(flash_used_percent)%",
-    "memWarn": "Too less memory to update via OTA ! $(flash_used_percent)% used.",
-    "gascounter": {
-      "m3hTotal": "Total",
-      "m3hToday": "Today",
-      "m3hPrevday": "Yesterday",
-      "m3hCurrent": "Actual consuming",
-      "m3hLastHour": "Consumed in last hour"
-    }
+    "memWarn": "Too less memory to update via OTA ! $(flash_used_percent)% used."
   },
   "Info": {
     "legend": "Consuming",
@@ -248,5 +258,6 @@
     "m3hPrevday": "Yesterday",
     "m3hCurrent": "Actual",
     "m3hLastHour": "Last hour"
-  }
+  },
+  "_language": "English"
 }

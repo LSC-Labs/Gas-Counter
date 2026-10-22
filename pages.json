@@ -33,9 +33,18 @@
 
     "sync" : {
         "files": [
-                    "src/web/css/runtime.css        > src/web/css/_runtime.css",
-                    "src/web/css/runtime.css.map    > src/web/css/_runtime.css.map",
-                    "src/web/js/runtime.js          > src/web/js/_runtime.js",
+                    
+                    "lib/PLibESPV1/scripts/buildSteps.py          > scripts/buildSteps.py",
+                    "lib/PLibESPV1/scripts/_buildPages.js         > scripts/_buildPages.js",
+                    "lib/PLibESPV1/scripts/_common.js             > scripts/_common.js",
+                    "lib/PLibESPV1/scripts/_compilePages.js       > scripts/_compilePages.js",
+                    "lib/PLibESPV1/scripts/updateVersionInfos.js  > scripts/updateVersionInfos.js",
+                    "lib/PLibESPV1/scripts/syncFiles.js           > scripts/syncFiles.js",
+                    "lib/PLibESPV1/src/web/css/runtime.css        > src/web/css/_runtime.css",
+                    "lib/PLibESPV1/src/web/css/runtime.css.map    > src/web/css/_runtime.css.map",
+                    "lib/PLibESPV1/src/web/js/runtime.js          > src/web/js/_runtime.js",
+                    "lib/PLibESPV1/src/web/index.html             > src/web/index.html",
+                    "lib/PLibESPV1/src/web/js/index.js            > src/web/js/index.js",
                     "src/web/js/settings.js         = src/web/js/settings.js",
                     "src/WebRoutes.cpp.template     = src/WebRoutes.cpp",
                     "include/WebRoutes.h.template   = include/WebRoutes.h"

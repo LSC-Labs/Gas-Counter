@@ -1,49 +1,53 @@
 {
-  "name": "gas-counter",
-  "version": "0.1.0",
-  "description": "Gas Counter with MQTT",
-  "main": "index.js",
-  "type": "module",
-  "directories": {
-    "lib": "lib",
-    "test": "test"
-  },
-  "homepage": "https://github.com/lsc-labs/Gas-Counter#readme",
-  "bugs": {
-    "url": "https://github.com/lsc-labs/Gas-Counter/issues"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/lsc-labs/Gas-Counter.git"
-  },
-  "scripts": {
-    "create-WebPages": "npm run build-Pages && npm run compile-Pages",
-    "css-compile": "sass       --style expanded --source-map --embed-sources --no-error-css scss/:src/web/css/",
-    "sync-Files": "gulp syncFiles",
-    "watch-WebPages": "watchlist src/web/pages lib/PLibESPV1/src/web/pages -- npm run update-Pages",
-    "watch-css": "sass --watch --style expanded --source-map --embed-sources --no-error-css scss/:src/web/css/",
-    "build-Pages": "gulp buildPages",
-    "compile-Pages": "gulp compilePages"
-  },
-  "author": "LSC Labs - P.Liebl",
-  "license": "MIT",
-  "devDependencies": {
-    "bootstrap": "^5.3.5",
-    "bootstrap-icons": "^1.11.3",
-    "footable": "^2.0.6",
-    "gulp": "^5.0.1",
-    "gulp-clean-css": "^4.3.0",
-    "gulp-css-purge": "^3.0.9",
-    "gulp-debug": "^5.0.1",
-    "gulp-flatmap": "^1.0.2",
-    "gulp-gzip": "^1.4.2",
-    "gulp-htmlmin": "^5.0.1",
-    "gulp-jsonmin": "^1.2.0",
-    "gulp-preprocess": "^5.0.0",
-    "gulp-uglify": "^3.0.2",
-    "jquery": "^3.7.1",
-    "pump": "^3.0.3",
-    "sass": "^1.89.2",
-    "watchlist": "^0.3.1"
-  }
+    "name": "gas-counter",
+    "version": "0.2.0",
+    "description": "Gas Counter with MQTT",
+    "main": "index.js",
+    "type": "module",
+    "directories": {
+        "lib": "lib",
+        "test": "test"
+    },
+    "homepage": "https://github.com/lsc-labs/Gas-Counter#readme",
+    "bugs": {
+        "url": "https://github.com/lsc-labs/Gas-Counter/issues"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/lsc-labs/Gas-Counter.git"
+    },
+    "scripts": {
+        "create-WebPages": "npm run build-Pages && npm run compile-Pages",
+        "build-Pages": "gulp buildPages",
+        "compile-Pages": "gulp compilePages",
+        "sync-RuntimeFiles": "node scripts/syncFiles",
+        "incr-Build-Version": "node scripts/updateVersionInfos",
+        "incr-Patch-Version": "node scripts/updateVersionInfos -patch",
+        "incr-Minor-Version": "node scripts/updateVersionInfos -minor",
+        "incr-Major-Version": "node scripts/updateVersionInfos -major",
+        "css-compile": "sass       --style expanded --source-map --embed-sources --no-error-css scss/:src/web/css/",
+        "watch-WebPages": "watchlist src/web/pages lib/PLibESPV1/src/web/pages -- npm run update-Pages",
+        "watch-css": "sass --watch --style expanded --source-map --embed-sources --no-error-css scss/:src/web/css/"
+    },
+    "author": "LSC Labs - P.Liebl",
+    "license": "MIT",
+    "devDependencies": {
+        "bootstrap": "^5.3.5",
+        "bootstrap-icons": "^1.11.3",
+        "footable": "^2.0.6",
+        "gulp": "^5.0.1",
+        "gulp-clean-css": "^4.3.0",
+        "gulp-css-purge": "^3.0.9",
+        "gulp-debug": "^5.0.1",
+        "gulp-flatmap": "^1.0.2",
+        "gulp-gzip": "^1.4.2",
+        "gulp-htmlmin": "^5.0.1",
+        "gulp-jsonmin": "^1.2.0",
+        "gulp-preprocess": "^5.0.0",
+        "gulp-uglify": "^3.0.2",
+        "jquery": "^3.7.1",
+        "pump": "^3.0.3",
+        "sass": "^1.89.2",
+        "watchlist": "^0.3.1"
+    }
 }

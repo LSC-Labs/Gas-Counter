@@ -1,5 +1,4 @@
 {
-  "_language": "Deutsch",
   "menu": {
     "signin": "Anmelden",
     "signout": "Abmelden",
@@ -37,7 +36,6 @@
     }
   },
   "WiFi": {
-    "legend": "WLAN Einstellungen",
     "scan": {
       "title": "WLAN Suche - bitte warten...",
       "titleDone": "Wählen Sie ein WLAN...",
@@ -95,50 +93,57 @@
     "STA": {
       "type": "Client",
       "desc": "SSID des WLANs, drücken Sie 'Suchen' um WLANs in der Nähe zu finden."
-    }
+    },
+    "legend": "WLAN Einstellungen"
   },
   "MQTT": {
-    "title": "Message Broker",
     "desc": {
-      "enable": "Aktiviere den Message Broker.",
-      "configure": "Konfiguriere den Zugriff auf den Message Broker, oder stoppe den Dienst."
+      "enable": "Aktiviere den Message Broker",
+      "configure": "Konfiguriere den Zugriff auf den Message Broker, oder stoppe den Dienst"
     },
     "enable": {
       "label": "MQTT Unterstützung",
-      "info": "Aktiviere oder deaktivire den MQTT service."
+      "info": "Aktiviere oder deaktiviere die MQTT Unterstützung"
     },
     "host": {
       "label": "Host",
-      "info": "Der Name oder die Adresse des MQTT Servers."
+      "info": "Der Name oder die Adresse des MQTT Servers"
     },
     "port": {
       "label": "Port",
-      "info": "Port des MQTT Servers."
+      "info": "Port des MQTT Servers"
     },
     "user": {
       "label": "User",
-      "info": "Technischer User für den MQTT Zugriff."
+      "info": "Technischer User für den MQTT Zugriff"
     },
     "passwd": {
       "label": "Passwort",
-      "info": "Passwort des technischen Users."
+      "info": "Passwort des technischen Users"
     },
     "topic": {
       "label": "Topic prefix",
-      "info": "Prefix für alle MQTT Topics."
+      "info": "Prefix für alle MQTT Topics"
     },
     "autotopic": {
       "label": "Auto Topic",
-      "info": "Füge einen automatisches Topic Prefix an die Topics (die letzten 6 Zahlen der MAC Adresse)."
+      "info": "Füge einen automatisches Topic Prefix an die Topics (die letzten 6 Zahlen der MAC Adresse)"
     },
     "syncrate": {
       "label": "Sync (Sekunden)",
-      "info": "Synchronisations Zeit um einen Status an den MQTT Server zu schicken (Heartbeat)."
-    }
+      "info": "Synchronisations Zeit um einen Status an den MQTT Server zu schicken (Heartbeat)"
+    },
+    "ha": {
+      "label": "Home Assistant Support",
+      "info": "Aktiviere oder deaktiviere die MQTT Unterstützung"
+    },
+    "hatopic": {
+      "label": "Home Assistant Topic",
+      "info": "Der aktulle Topic prefix Wert aus der aktiven Home Assistant Integration."
+    },
+    "title": "Message Broker"
   },
   "Device": {
-    "legend": "Wilkommen zu ihrem '$(prog_name)' Gerät",
-    "title": "Setzen Sie den Namen des Gerätes (Hostname) und das Admin Passwort",
     "hostname": {
       "text": "Gerätename",
       "title": "Der Name des Gerätes im Netzwerk (Hostname)"
@@ -146,11 +151,11 @@
     "password": {
       "text": "Passwort",
       "title": "Setzen Sie das Passwort für den administrativen Zugriff"
-    }
+    },
+    "legend": "Wilkommen zu ihrem '$(prog_name)' Gerät",
+    "title": "Setzen Sie den Namen des Gerätes (Hostname) und das Admin Passwort"
   },
   "SysCfg": {
-    "legend": "Sichern & Wiederherstellung",
-    "title": "Sichern oder Wiederherstellen der Geräte Konfiguration. Achtung, die Backup Datei wird <b>NICHT</b> verschlüsselt.<br/> Sichern Sie die Datei an einen geschützten Platz um zu verhindern, dass jemand Zugriff auf ihre Zugangsdaten erhält...",
     "Backup": {
       "title": "Sichern",
       "desc": "Sichere die aktuelle Konfiguration in eine Datei.",
@@ -161,12 +166,16 @@
       "desc": "Wählen Sie die Datei aus der die Konfiguration wieder hergestellt, bzw. geladen werden soll.",
       "btn": "Lade Konfig",
       "invalidFile": "Die gewählte Datei ist keine gültige Sicherungsdatei..."
-    }
+    },
+    "legend": "Sichern & Wiederherstellung",
+    "title": "Sichern oder Wiederherstellen der Geräte Konfiguration. Achtung, die Backup Datei wird <b>NICHT</b> verschlüsselt.<br/> Sichern Sie die Datei an einen geschützten Platz um zu verhindern, dass jemand Zugriff auf ihre Zugangsdaten erhält..."
   },
   "Firmware": {
     "legend": "Firmware update (aktuelle firmware: $(prog_ver))",
     "title": "Firmware update. Machen Sie vorab ein Backup der Konfiguration um einen Datenverlust zu vermeiden.",
-    "latest": "Aktuell verfügbare Version (online)",
+    "latest": "Aktuellste Version (online)",
+    "history": "Firmware updates",
+    "releasePage": "...alle Releases auf GitHub",
     "install": "Wählen Sie die Version, die sie installieren möchten",
     "downloadBtn": "Download",
     "installBtn": "Install",
@@ -174,12 +183,12 @@
   },
   "gasCounter": {},
   "Status": {
-    "legend": "Status - $(prog_name) Ver.: $(prog_ver)",
     "panel": {
       "device": "Gerät",
       "network": "Netzwerk",
       "mqtt": "Message Broker"
     },
+    "legend": "Status - $(prog_name) Ver.: $(prog_ver)",
     "hostname": "Systemname",
     "uptime": "Laufzeit",
     "flashSize": "Größe des Flash",
@@ -208,5 +217,24 @@
     "m3hPrevday": "Gestern",
     "m3hCurrent": "Aktuell",
     "m3hLastHour": "Letzte Stunde"
-  }
+  },
+  "System": {
+    "Restart": {
+      "btn": "Neustart",
+      "title": "Neustart des Gerätes",
+      "desc": "Startet das Gerät neu. Nicht gespeicherte Änderungen werden verworfen.",
+      "confirm": "Jetzt neu starten? - alle nicht gespeicherten Änderungen gehen verloren!",
+      "waitmsg": "Bitte warten Sie, bis das Gerät neu gestartet ist..."
+    },
+    "Reset": {
+      "btn": "Zurücksetzen",
+      "title": "Werkseinstellungen",
+      "desc": "Alle Einstellungen werden verworfen, das Gerät wird auf Werkseinstellungen zurück gesetzt.",
+      "confirm": "Das Gerät auf Werkseinstellungen zurück setzen?",
+      "waitmsg": "Bitte warten Sie bis das Gerät zurück gesetzt wurde und neu startet..."
+    },
+    "title": "Neustart oder Reset",
+    "desc": "Starten des Gerätes oder zurücksetzen auf Werkseinstellungen"
+  },
+  "_language": "Deutsch"
 }

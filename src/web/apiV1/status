@@ -1,7 +1,7 @@
 {
     "DebugMode": true,
-    "prog_name": "DewPoint Switch",
-    "prog_version": "0.1.0.E-D",
+    "prog_name": "Gas-Counter",
+    "prog_version": "0.2.0.0-T",
     "uptime": "00:00:02",
     "starttime": 78,
     "now": 2325,
@@ -17,27 +17,34 @@
     "fs_total": 1024000,
     "fs_used": 16384,
     "gascounter": {
-        "TickCounter" : 122,
+        "TickCounter": 122,
         "m3hPerTick": 0.02,
         "m3hTotal": 18.3,
         "m3hToday": 2.9,
         "m3hPrevday": 5.6,
-        "m3hLastHour" : 0.6,
-        "m3hCurrent" : 0.3
+        "m3hLastHour": 0.6,
+        "m3hCurrent": 0.3
     },
     "bat": {
-            "power": 4.17,
-            "available": true,
-            "raw": 973
-        },
+        "power": 4.17,
+        "available": true,
+        "raw": 973
+    },
     "rf433": {
-            "enabled": true,
-            "msgs": [
-                { "on": 4333356,"msg": 1, "type":0 },
-                { "on": 4333362,"msg": 0, "type":1 }
-            ]
-        },
-
+        "enabled": true,
+        "msgs": [
+            {
+                "on": 4333356,
+                "msg": 1,
+                "type": 0
+            },
+            {
+                "on": 4333362,
+                "msg": 0,
+                "type": 1
+            }
+        ]
+    },
     "wifi": {
         "stopTime": 0,
         "restartTime": 4294967295,
@@ -63,5 +70,4 @@
         "disconReasonRC": 4,
         "disconReason": "stupid counterpart"
     }
-    
 }

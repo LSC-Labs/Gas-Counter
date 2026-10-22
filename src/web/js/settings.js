@@ -13,18 +13,20 @@ const APP_SETTINGS = {
      * Use them in this files as $(<name>)
      */
     "app": {
-        "prog_name": "Gas Counter",    // Name of the program
-        "prog_ver": "0.1",
+        "prog_name":"Gas-Counter",
+        "prog_ver":"0.2.0",
         "prog_copy": "(c) 2025 LSC-Labs",
         "logLevel": 5,                          // Log Level for the web application (0..7)
         "ws": {
             "recon": true,  // Enable WebSocket reconnection- disable for testing to avoid messages in the html console
         },
-        "latest": {
-            "url": "https://api.github.com/repos/LSC-Labs/Gas-Counter/releases/latest"
+        "firmware": {
+            "list": "https://api.github.com/repos/LSC-Labs/Gas-Counter/releases",
+            "latest": "https://api.github.com/repos/LSC-Labs/Gas-Counter/releases/latest"
         },
         "GitHubPage": "https://github.com/LSC-Labs/Gas-Counter",
-        "mailto":"office@lsc-labs.de?subject=$(prog_name) - v$(prog_ver)"
+        "mailto":"office@lsc-labs.de?subject=$(prog_name) - v$(prog_ver)",
+        "homePage": "https://github.com/LSC-Labs/Gas-Counter"
         
     },
 

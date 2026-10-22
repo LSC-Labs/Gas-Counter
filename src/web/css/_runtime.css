@@ -1363,23 +1363,29 @@ VarTable, PageVars, LocalVars {
   box-sizing: border-box;
   padding: 5px 0em;
   border-radius: 8px;
-  /** Format the Navigation Header with Logo **/
 }
 #sidebar svg, #sidebar i, #sidebar button {
   flex-shrink: 0;
   background-color: var(--sidebar-bg-color);
   fill: var(--sidebar-txt-color);
 }
+#sidebar {
+  /** Format the Navigation Header with Logo **/
+}
 #sidebar .nav-header {
   margin-top: 16px;
   margin-bottom: 16px;
-  margin-left: 16px;
+  margin-left: 3px;
   font-size: larger;
   display: flex;
   justify-content: flex-start;
 }
 #sidebar .nav-header .logo {
   font-weight: bold;
+}
+#sidebar .nav-header .logo span {
+  font-size: 1.3em;
+  padding-left: 0em;
 }
 #sidebar .nav-header #sidebarHide {
   flex-grow: 1;

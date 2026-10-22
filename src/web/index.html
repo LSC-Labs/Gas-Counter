@@ -1,4 +1,17 @@
 <!DOCTYPE html>
+<!--
+    (c) LSC - Labs PLibESPV1 runtime
+    
+    Main index enty point version 1.0.3
+
+    see: https://github.com/LSC-Labs/PLibESPV1             - The native runtime library
+    see: https://github.com/LSC-Labs/ESP-ProjectTemplate   - A project template with compile and build steps
+
+    
+    Use for your own purposes...
+    As this file will normaly be compiled, the comments (event this own) will be removed
+    
+-->
 <html lang="en">
 <head> 
   <meta charset="UTF-8">
@@ -10,9 +23,8 @@
     and the application specific one
    -->
   <link rel="stylesheet" href="css/_runtime.css"> <!-- basic runtime -->
-  <link rel="stylesheet" href="css/_app.css">     <!-- pages stylesheets -->
+  <link rel="stylesheet" href="css/_pages.css">   <!-- pages stylesheets -->
   <link rel="stylesheet" href="css/app.css">      <!-- app specific stylesheets -->
-
 
   <!--
     Javascript... 
@@ -31,7 +43,14 @@
     <!-- contains the sidebar - normaly on the left -->
     <nav id="sidebar">
       <div class="nav-header">
-          <span class="logo">LSC Labs</span>
+          <span class="logo" id="menuLogo">
+            <!-- 
+              to adjust size and position, use src/js/settings.js for "MenuIcon"
+              if defined here, it is like "hard coded" and will not be replaced (!)
+             -->
+            <icon data-icon-attr="height=30px;width=40px;viewBox=0 0 16 16" data-icon="MenuIcon"></icon>
+            <span data-i18n="menu.title">LSC-Labs</span>
+          </span>
           <button id="sidebarHide" data-icon="Arrows">
           </button>
       </div>
@@ -70,7 +89,7 @@
     <!-- inside the mainPage, this is the footer -->
     <div class="footer">
       <div id="footerInfo"    class="text-muted">
-        <a href="$(homePage)" target="_" title="online repository" data-element-type="expand">$(prog_name) V.$(prog_ver) - $(prog_copy)</a>
+        <a href="$(homePage)" target="_" title="online repository" data-element-type="expand">$(prog_name) V$(prog_ver) - $(prog_copy)</a>
         <span id="ticketLink"></span>
       </div>
       <div id="changePending"  style="display:none" >
@@ -116,7 +135,7 @@
       <div class="dialogHeader">
         <div class="modal-title text-center" data-i18n="dialog.wait.title"></div>
       </div>
-      <div class="dialogBody"></div>
+      <div class="dialogBody waitBody"></div>
       <div class="progressBar"><div class="progressStatus"></div>
       
     </dialog>
@@ -124,18 +143,23 @@
     <dialog id="signinDialog" class="modalDialog">     
       <div class="dialogHeader">
         <button type="button" class="closeButton pull-right" data-dismiss="modal">&times;</button>
-        <h4 class="modal-title" data-i18n="login.title">...</h4>
+        <h4 class="modal-title" data-i18n="signin.title"></h4>
       </div>
       <form role="form">      <!-- Form starts here... to avoid loosing the "escape key" function-->
         <div class="dialogBody">
           <div class="form-group">
             <!-- Browser validation fails, when btn-primary is in place !? validate in java script -->
-            <input autofocus class="form-control" placeholder="Password" name="password" type="password" value="" required title="Please enter your password">
+            <input  autofocus class="form-control" 
+                    placeholder="Password" name="password" type="password" 
+                    value="" required 
+                    data-i18n="@title:signin.title"
+                    >
           </div>
           <div class="inError" style="display:none">Error message comes here...</div>
         </div>
         <div class="dialogFooter">
-          <button type="submit" class="btn btn-primary btn-md pull-right">Login</button>
+          <button type="submit" class="btn btn-primary btn-md pull-right" 
+                  data-i18n="signin.submit"></button>
         </div>
       </form>
 

@@ -6,6 +6,7 @@ import debug from 'gulp-debug';
 import htmlmin from 'gulp-htmlmin';
 import uglify from 'gulp-uglify';
 import cleancss from 'gulp-clean-css';
+// require ('gulp-css-purge')
 import purge from 'gulp-css-purge';
 import preprocess from 'gulp-preprocess';
 
@@ -60,7 +61,7 @@ async function minimizeScripts(cb) {
     .pipe(gzip({append:true}))
     .pipe(gulp.dest(strPackedPath));
     cb();
-}
+} 
 
 async function minimizeCSS(cb) {
     let strSourcePath = Settings.getWebSourcePath() + "/css/*.css";
@@ -123,6 +124,8 @@ async function buildHeaderFiles(cb) {
                     if (i < tData.length - 1) oWS.write(',');
                 }
                 oWS.write("\n};");
+                // No timestamp to avoid github change...
+                // oWS.write("\n// TS: " + new Date().toISOString()); 
                 oWS.end();
                 fTotalSize += nPackedFileSize;
             }
@@ -132,7 +135,40 @@ async function buildHeaderFiles(cb) {
     console.log("Web Frontend size in memory : " + fTotalSize + " bytes");
     console.log("==================================================================");
     let strTouchFile = Settings.getData("touchAfterPagesCompiled");
-    console.log("Checking touch file : " + strTouchFile);
+    if (typeof strTouchFile === 'string' || myVar instanceof String) {
+        removeObjectFilesOf(strTouchFile);
+    } else {
+        for(let strTouchFile of Settings.getData("touchAfterPagesCompiled",[])) {
+            removeObjectFilesOf(strTouchFile);
+        }
+    }
+
+    cb();
+}
+
+/**
+ * removes the object files in all targets of the source file.
+ * @param {string} strSourceFileName name of the source file i.E. "src/main.cpp"
+ */
+function removeObjectFilesOf(strSourceFileName) {
+    let strObjectBaseFolder = ".pio/build";
+    let tFiles = fs.readdirSync(strObjectBaseFolder);
+    for (let i in tFiles){
+        let strFileName = path.join(strObjectBaseFolder,tFiles[i]);
+        if (fs.statSync(strFileName).isDirectory()){
+            let strObjectFile = path.join(strFileName,strSourceFileName + ".o");
+            if(fs.existsSync(strObjectFile)) {
+                console.log("## > removing object file : " + strObjectFile);
+                fs.unlinkSync(strObjectFile);
+            }
+        } 
+    } 
+}
+
+
+// previous function to touch the file...
+// new version will delete the previous compiled object file
+function obsolet_01() {
     if(strTouchFile && fs.existsSync(strTouchFile)) {
         console.log("touching file : " + strTouchFile);
         let changedModifiedTime = new Date();
@@ -145,13 +181,15 @@ async function buildHeaderFiles(cb) {
                 return console.log(err);
             }
             let strTouchText = "touched by page compiler : ";
-            let strMatchMask = strTouchText + "\\d*";
+            // 2026-01-22T13:36:26.786Z
+            let strMatchMask = strTouchText + "[\\d-T:\\.Z]*";
+            // let strMatchMask = strTouchText + "[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{1,3}Z";
             let oRegEx = new RegExp(strMatchMask, 'g');
             // If found, replace it, else append it...
             if(strData.match(oRegEx)) {
-                strData = strData.replace(oRegEx,strTouchText + changedModifiedTime.getTime());
+                strData = strData.replace(oRegEx,strTouchText + changedModifiedTime.toISOString()); //new Date().toISOString()
             } else {
-                strData += "/* " + strTouchText + changedModifiedTime.getTime() + " */\n";
+                strData += "/* " + strTouchText + changedModifiedTime.toISOString() + " */\n";
             }
             // Write the file back to disk...
             fs.writeFile(strTouchFile, strData, 'utf8', function (err) {
@@ -159,10 +197,12 @@ async function buildHeaderFiles(cb) {
             });
             
         });
+        
         // as touching does not trigger the compile, append a line as comment...
         // fs.appendFileSync(strTouchFile,"/* touched by page compiler : " + changedModifiedTime.getTime() + " */\n");   
     }
-    cb();
+
+
 }
 
 // #endregion
@@ -172,12 +212,14 @@ export async function runCompilePages(cb, oSettings) {
     console.log("---- compile....");
     Settings.addConfig(oSettings);
     
+    
     const runMinimizeJob = gulp.series(   
                                     minimizeHTML,
                                     minimizeCSS,
                                     minimizeScripts,
                                     minimizeLanguages,
                                 );
+                                
     const runBuildHeaders = gulp.series(buildHeaderFiles);
     await runMinimizeJob();
     return await runBuildHeaders();

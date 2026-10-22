@@ -1,7 +1,6 @@
 #pragma once
 #include <InputPinController.h>
-#include <ConfigHandler.h>
-#include <StatusHandler.h>
+#include <ModuleInterface.h>
 #include <stdint.h>
 #include <MQTTController.h>
 
@@ -30,7 +29,7 @@ struct GasCounterStatus {
  * Either use the constructor with the port number or call setup() later
  * to initialize the gas counter on a specific port.
  */
-class CGasCounter : CInputPinController, public IConfigHandler, public IStatusHandler, public IHomeAssistantComponent
+class CGasCounter : CInputPinController, public IModule, public IHomeAssistantComponent
 {
     private:
         // Ausschließlich Ganzzahlen im ISR; Übernahme im Loop unter InterruptLock.
@@ -66,6 +65,7 @@ class CGasCounter : CInputPinController, public IConfigHandler, public IStatusHa
         void writeConfigTo(JsonNode &oCfgNode, bool bHideCritical) override;
         void readConfigFrom(JsonNode &oCfgNode) override;
         void writeStatusTo(JsonNode &oStatusNode, int nLevel) override;
+        int receiveEvent(const void * pSender, int nMsg, const void * pMessage, int nMsgInfo) override;
 
         unsigned long getCurrentGasCounter();
         float getConsumedCubicMetersInLastHour();

@@ -327,8 +327,14 @@ class Utils {
         return(bResult)
     }
 
+    /**
+     * Detect if the data is an json object "{...}".
+     * If data is an array, the result is false.
+     * @param {*} oData 
+     * @returns true if the oData is an object, but not an array and not null
+     */
     static isObj(oData) {
-        return(oData != null && typeof oData === 'object');
+        return(oData != null && typeof oData === 'object' && !Array.isArray(oData));
     }
 
     static isString(oData) {
@@ -583,8 +589,37 @@ class CElement extends Utils {
         return(oResult);
     }
 
+    /**
+     * if the base elements supports validation,
+     * it will be checked... if the element does not support (checkValidity()),
+     * the result is false...
+     * If you want to check if a valid base element is in place, use hasBase();
+     * @returns true or false
+     */
     isValid() {
-        return(this._oBE ? this._oBE.checkValidity() : false);
+        let bResult = false;
+        if(this._oBE && Utils.isFunction(this._oBE.checkValidity)) {
+            bResult = this._oBE.checkValidity();
+        }
+        return(bResult);
+    }
+
+    /**
+     * Enable / Disable this node
+     * @param {bool} bEnable (default = true)
+     */
+    enable(bEnable = true) {
+        if(this.hasBase()) {
+            this.getBase().disabled = !bEnable;
+        }
+        return(this);
+    }
+    /**
+     * Enable / Disable this node
+     * @param {bool} bDisable (default = true) 
+     */
+    disable(bDisable = true) {
+        return(enable(!bDisable));
     }
 
     /**
@@ -649,6 +684,7 @@ class CElement extends Utils {
         
         // this._oBE.parentNode(replaceChild(oNew,this._oBE))
         // this._oBE.outerHTML = strHTML;
+        return(this);
     }
 
     evtArgs(oArgs) {
@@ -806,7 +842,7 @@ class CElement extends Utils {
         let oE = this.getBase();
         if(strName && oE) {
             if(oValue === null) delete oE.dataset[strName];
-            else if (oValue) {
+            else if (oValue != undefined) {
                 if(Utils.isObj(oValue)) {
                     try {
                         oValue = JSON.stringify(oValue);
@@ -823,6 +859,14 @@ class CElement extends Utils {
             }
         }
         return(oResult);
+    }
+    /**
+     * set the i18n language attribute
+     * @param {string} strValue 
+     */
+    i18n(strValue) {
+        this.data("i18n",strValue);
+        return(this);
     }
 
     /**
@@ -1529,14 +1573,28 @@ class CTranslator {
     }
 
 
-    getAsString(oData, strDefault) {
-        let strResult = "";
+    /**
+     * Resolve the data to a string.
+     * If it is an array, the values will be joined,
+     * If it is already a string, it will stay in place.
+     * In all other cases, the result will be "" or the strDefault.
+     * If a VarTable is as parameter, the final result will be substituted
+     * @param {*} oData 
+     * @param {CVarTable|undefined} oVarTable 
+     * @param {string|undefined} strDefault 
+     * @returns strDefault if no data, otherwise the string result of the data, with substituted vars (if var table in place).
+     */
+    _resolveToString(oData, oVarTable, strDefault) {
+        let strResult = Utils.isString(strDefault) ? strDefault : "";
         if(oData) {
             if(Array.isArray(oData)) {
                 for(let strLine of oData) strResult += strLine;
-            } else {
+            } else if(Utils.isString(oData)) {
                 strResult = oData;
             }
+        }
+        if(Utils.isString(strResult) && Utils.isInstanceOf(oVarTable,"CVarTable")) {
+            strResult = oVarTable.subst(strResult);
         }
         return(strResult ?? strDefault);
     }
@@ -1587,12 +1645,17 @@ class CTranslator {
      */
     _setElementProps(oElement,oData, oVarTable) {
         let bSubst = oVarTable && oVarTable.subst;
+        // If it is an array - resolve the array to a string first.
         if(Array.isArray(oData)) {
-            oData = this.getAsString(oData)
+            oData = this._resolveToString(oData)
         }
+        // If data is a string, set the innerHTML of the element with the substituted string.
         if(typeof oData === 'string') {
             oElement.innerHTML = bSubst ? oVarTable.subst(oData) : oData;
         }
+        // complex structure with proerties.
+        // set all @... properties as attributes,
+        // and all text/html properties as innerText/innerHTML
         else if(typeof oData === 'object') {
             // If object, all "@..." elements are attribute information
             // The the target has this attribute, it will be replaced...
@@ -1602,9 +1665,11 @@ class CTranslator {
                     if(this._bForceAttributes || oElement.hasAttribute(strAttr)) {
                         oElement.setAttribute(strAttr,bSubst ? oVarTable.subst(oData[strKey]) : oData[strKey]);
                     }
+                    
                 } else {
-                    // set element by name
-                    let strVal = bSubst ? oVarTable.subst(oData[strKey]) : oData[strKey]
+                    // set element html/text with property value
+                    // muast be a string or an array of strings, otherwise it will be empty.
+                    let strVal = this._resolveToString(oData[strKey],oVarTable);
                     switch(strKey) {
                         case "text": oElement.innerText = strVal; break;
                         case "html": oElement.innerHTML = strVal; break;
@@ -1616,11 +1681,25 @@ class CTranslator {
         return(oElement);
     }
 
+    /**
+     * translates async a i18n key into a string
+     * Will not operate on key:target syntax, only native keys are supported.
+     * The result will be substituted against the var table, if in place.
+     * @param {string} strI18n The i18n key to be translated
+     * @param {string} strLanguage The language to be used for translation
+     * @param {CVarTable} oVars The var table for substitution of the result string.
+    * @returns the translated and substituted string.
+     */
     async translateI18n(strI18n,strLanguage,oVars) {
         let strResult = "";
         await this.getKeyData(strI18n,strLanguage)
-            .then(str => {
-                strResult = oVars ? oVars.subst(str) : str;
+            .then(oData => {
+                if(Array.isArray(oData)) {
+                    let s = "";
+                    for(let strLine of oData) s += strLine;
+                    oData = s;
+                }
+                strResult = Utils.isInstanceOf(oVars,CVarTable) ? oVars.subst(oData) : oData;
             })
         return(strResult);
     }
@@ -1628,18 +1707,21 @@ class CTranslator {
     /**
      * Translate an (html) element into the requested language
      * and substitute it against the var table
-     * @param {HTMLElement} oElement         The element to be translated
-     * @param {string|undefined} strLanguage Default is the userlanguage code
-     * @param {CVarTable} oVars              The vars of the application
-     * @param {boolean} bWithChilds false == only the element, true == also the child elements
+     * @param {HTMLElement|CElement} oElement The element to be translated
+     * @param {string|undefined} strLanguage  Default is the userlanguage code
+     * @param {CVarTable} oVars               The vars of the application
+     * @param {boolean} bWithChilds false == only the element, true == also the child elements (default)
      */
     async translate(oElement, strLanguage, oVars, bWithChilds = true) {
         if(!strLanguage) strLanguage = this.getUserLanguage();
         let oSelf = this;
-        if(typeof oElement === 'object') {
-            let strI18n = oElement.dataset.i18n;
-
+        let oHTMLElement = EC(oElement).getBase();
+        if(Utils.isElement(oHTMLElement)) {
+            oElement = oHTMLElement;
+            let strI18n = oElement.dataset ? oElement.dataset.i18n : undefined;
             if(strI18n && typeof strLanguage === 'string') {
+                // Check if more then one entry is in the i18n definition
+                // - Split up to see if a key:value definition is in place
                 for(let strSelect of strI18n.split("|")) {
                     let strKey = strSelect;
                     let strTarget;
@@ -1649,13 +1731,17 @@ class CTranslator {
                         strTarget = strSelect.substring(0,nPos);
                     }
                     
+                    // get the i18n key data (async)
                     this.getKeyData(strKey,strLanguage)
                         .then(oData => {
+                            // Syntax 1: "target:key|..." 
                             if(strTarget) {
+                                // If an attribute is defined as target, set the attribute 1:1 with the result.
                                 if(strTarget.startsWith("@")) oElement.setAttribute(strTarget.substring(1),oData);
+                                // Otherwise, set the inner html of the target element 
                                 else {
                                     let oTargetElement = oElement.querySelector(strTarget);
-                                    if(oTargetElement) oTargetElement.innerHTML = this.getAsString(oData);
+                                    if(oTargetElement) oTargetElement.innerHTML = this._resolveToString(oData,oVars);
                                 }
                             }
                             let oResult = strTarget ? oElement : this._setElementProps(oElement,oData,oVars);
@@ -1693,6 +1779,7 @@ class CTranslator {
 // #region (Partial) View class for end user
 class CView extends CElement {
     LocalVars = new CVarTable();
+    Transe = new CTranslator();
 
     constructor(oSel, oSettings) {
         super(oSel);
@@ -1818,6 +1905,10 @@ class CView extends CElement {
                 e.disabled = !bEnable;
             });
         }
+    }
+    translate(strLanguage = undefined, oVars = this.LocalVars) {
+        
+        this.Transe.translate(this.getBase(),strLanguage,oVars);
     }
 }
 // #endregion
@@ -2216,6 +2307,10 @@ class CPageHandler {
      * @param {*} oElement 
      */
     onRadioClick(pView,oElement,str) {
+        this.updateView(pView,oElement);
+    }
+
+    onSelectChanged(pView,oElement,str) {
         this.updateView(pView,oElement);
     }
     
@@ -3403,7 +3498,7 @@ class CAppl {
                     }
                 } catch(ex) {
                     APP.Log.logEx(ex,"parsing menu def... : ");
-                    APP.logInfo(oAttr);
+                    APP.Log.logInfo(oAttr);
                 }
             })
 
