@@ -14,7 +14,7 @@ const APP_SETTINGS = {
      */
     "app": {
         "prog_name":"Gas-Counter",
-        "prog_ver":"0.2.0",
+        "prog_ver":"0.3.0",
         "prog_copy": "(c) 2025 LSC-Labs",
         "logLevel": 5,                          // Log Level for the web application (0..7)
         "ws": {
@@ -226,3 +226,4 @@ const APP_SETTINGS = {
         },
     ]    
 }
+
