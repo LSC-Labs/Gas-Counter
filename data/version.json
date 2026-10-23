@@ -1,9 +1,9 @@
 {
     "name": "Gas-Counter",
     "major": "0",
-    "minor": "3",
+    "minor": "4",
     "patch": "0",
-    "build": 2,
+    "build": 1,
     "author": "LSC Labs - P.Liebl",
     "homepage": "https://github.com/lsc-labs/Gas-Counter#readme"
 }
