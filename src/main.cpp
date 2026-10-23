@@ -24,7 +24,7 @@ CGasCounter     oGasCounter(D7);
 CAppControl     oAppControl;
 CMDNSController oMDNSController;
 CNTPHandler     oNTPHandler;
-CStatusLed      oStatusLED(D6,D5,D0,false); // RGB LED on D6=Red, D5=Green, D0=Blue
+CStatusLed      oStatusLED(oGasCounter,D6,D5,D0,false); // RGB LED on D6=Red, D5=Green, D0=Blue
 
 
 #ifdef DEBUGINFOS

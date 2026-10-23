@@ -62,6 +62,9 @@ class CGasCounter : CInputPinController, public IModule, public IHomeAssistantCo
         void startMonitoring();
         void dispatch();
 
+        // Aktueller aktiv-low Eingangszustand für die Impulsanzeige.
+        bool isPulseActive() { return isPinLogicalOn(); }
+
         void writeConfigTo(JsonNode &oCfgNode, bool bHideCritical) override;
         void readConfigFrom(JsonNode &oCfgNode) override;
         void writeStatusTo(JsonNode &oStatusNode, int nLevel) override;

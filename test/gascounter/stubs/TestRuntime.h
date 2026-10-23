@@ -25,6 +25,7 @@ protected:
     int m_nPin = -1;
 public:
     void setup(int pin, bool, bool) { m_nPin = pin; }
+    bool isPinLogicalOn() { return false; }
     bool canSendInterrupts() { return m_nPin >= 0; }
 };
 class JsonNode {
