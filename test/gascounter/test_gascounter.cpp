@@ -49,6 +49,22 @@ static void tick(CGasCounter& counter, uint32_t now) {
     counter.dispatch();
 }
 
+static uint32_t stateHash(const void *raw, size_t size) {
+    const auto *bytes = static_cast<const uint8_t *>(raw);
+    uint32_t hash = 2166136261U;
+    for (size_t i = 0; i < size; ++i) hash = (hash ^ bytes[i]) * 16777619U;
+    return hash;
+}
+static void writeFixture(JsonNode &doc) {
+    JsonNode *data = doc.getObject("data");
+    assert(data);
+    const char *payload = data->getAsJsonText();
+    doc["checksum"] = static_cast<unsigned long>(stateHash(payload, strlen(payload)));
+    const char *text = doc.getAsJsonText();
+    File file = LittleFS.open("/gascounter.state", "w");
+    file.write(reinterpret_cast<const uint8_t *>(text), strlen(text));
+}
+
 int main() {
     setenv("TZ", "UTC0", 1);
     tzset();
@@ -111,6 +127,99 @@ int main() {
         CGasCounter corrupt(5);
         assert(!corrupt.beginPersistence());
         assert(corrupt.getCurrentGasCounter() == 0);
+    }
+    {
+        reset();
+        JsonNode doc;
+        doc["schemaVersion"] = 2;
+        JsonNode &data = *doc.getObject("data", true);
+        // Andere Reihenfolge, unbekannte Zusatzfelder, fehlende optionale Felder.
+        data["extension"] = "future information";
+        data.getObject("metadata", true)->setValue("source", "new firmware");
+        data["total"] = "1.23456789e-7";
+        data["tickCounter"] = static_cast<unsigned long>(UINT32_MAX);
+        writeFixture(doc);
+        {
+            CGasCounter counter(5);
+            assert(counter.beginPersistence());
+            assert(counter.getCurrentGasCounter() == UINT32_MAX);
+            assert(counter.Status.fTotalConsumedValue == 1.23456789e-7f);
+            near(counter.Status.fTodayConsumedValue, 0);
+            assert(counter.saveState(true));
+        }
+        {
+            CGasCounter counter(5);
+            assert(counter.beginPersistence());
+            assert(counter.Status.fTotalConsumedValue == 1.23456789e-7f);
+        }
+        data["total"] = "3.40282347e+38";
+        writeFixture(doc);
+        {
+            CGasCounter counter(5);
+            assert(counter.beginPersistence());
+            assert(counter.Status.fTotalConsumedValue == std::numeric_limits<float>::max());
+            assert(counter.saveState(true));
+        }
+        {
+            CGasCounter counter(5);
+            assert(counter.beginPersistence());
+            assert(counter.Status.fTotalConsumedValue == std::numeric_limits<float>::max());
+        }
+        data["tickCounter"] = -1;
+        writeFixture(doc);
+        {
+            CGasCounter counter(5);
+            const unsigned writes = LittleFS.writes;
+            assert(!counter.beginPersistence());
+            counter.dispatch();
+            assert(LittleFS.writes == writes); // Ungültigen Bestand nicht überschreiben.
+        }
+        data["tickCounter"] = 1;
+        doc["schemaVersion"] = 99;
+        writeFixture(doc);
+        {
+            CGasCounter counter(5);
+            assert(!counter.beginPersistence());
+            assert(counter.saveState(true)); // Speicherung bleibt deaktiviert.
+            const auto &bytes = *LittleFS.files["/gascounter.state"];
+            std::string text(bytes.begin(), bytes.end());
+            assert(text.find("schemaVersion\":99") != std::string::npos);
+        }
+        // Binärformat v1 mit eingefrorenem Layout wird verlustfrei migriert.
+        struct LegacyStatus {
+            unsigned long ticks, lastTick, period;
+            float minutes[60];
+            unsigned int minuteIndex;
+            float totalCounter, total, today, yesterday;
+        };
+        struct LegacyState {
+            uint32_t version;
+            LegacyStatus status;
+            long day;
+            int64_t savedAt;
+            uint32_t checksum;
+        } legacy = {};
+        legacy.version = 1;
+        legacy.status.ticks = 123;
+        legacy.status.total = 1.23f;
+        legacy.status.today = 0.23f;
+        legacy.day = -1;
+        legacy.checksum = stateHash(&legacy, offsetof(LegacyState, checksum));
+        File file = LittleFS.open("/gascounter.state", "w");
+        file.write(reinterpret_cast<const uint8_t *>(&legacy), sizeof(legacy));
+        {
+            CGasCounter counter(5);
+            assert(counter.beginPersistence());
+            assert(counter.getCurrentGasCounter() == 123);
+            assert(counter.Status.fTotalConsumedValue == 1.23f);
+            assert((*LittleFS.files["/gascounter.state"])[0] == '{');
+        }
+        {
+            CGasCounter counter(5);
+            assert(counter.beginPersistence());
+            assert(counter.getCurrentGasCounter() == 123);
+            assert(counter.Status.fTotalConsumedValue == 1.23f);
+        }
     }
     {
         reset(0);
@@ -300,7 +409,7 @@ int main() {
         counter.readConfigFrom(legacy);
         near(counter.Config.fUnitPerTick, 0.03f);
         JsonNode nonnumeric;
-        nonnumeric["m3PerTick"].numeric = false;
+        nonnumeric["m3PerTick"] = "invalid";
         nonnumeric["m2hPerTick"] = 0.08f;
         counter.readConfigFrom(nonnumeric); // Ein ungültiger neuer Schlüssel aktiviert keinen Legacy-Fallback.
         near(counter.Config.fUnitPerTick, 0.03f);

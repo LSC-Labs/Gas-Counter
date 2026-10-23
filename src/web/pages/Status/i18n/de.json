@@ -21,7 +21,7 @@
         "mac"       : "MAC Adresse",
         "enabled"   : "Aktviert",
         "connected" : "Verbunden",
-        "lastConStart"  : "Sart der Verbidnung",
+        "lastConStart"  : "Sart der Verbindung",
         "lastConLost"   : "Ende der letzten Verbindung",
         "disconReason"  : "Ursache des Abbruchs",
         "memOK"         : "$(sketch_size) Kb genutzt von $(flash_available) Kb => $(flash_used_percent)%",

@@ -9,7 +9,7 @@
 #include <utility>
 #define IRAM_ATTR
 #define FALLING 2
-using String = std::string;
+#include <Arduino.h>
 extern uint32_t testMillis;
 extern bool testLocked;
 extern std::function<void()> testInterrupt;
@@ -28,23 +28,7 @@ public:
     bool isPinLogicalOn() { return false; }
     bool canSendInterrupts() { return m_nPin >= 0; }
 };
-class JsonNode {
-public:
-    std::map<std::string, JsonNode> children;
-    double number = 0;
-    bool numeric = false;
-    JsonNode& operator[](const char* key) { return children[key]; }
-    template<class T> JsonNode& operator=(T value) { number = value; numeric = true; return *this; }
-    bool exists(const char* key) { return children.count(key) != 0; }
-    bool storeValueIf(const char* key, float* value) {
-        const auto it = children.find(key);
-        if (it == children.end() || !it->second.numeric) return false;
-        *value = static_cast<float>(it->second.number);
-        return true;
-    }
-    JsonNode* getObject(const char* key, bool) { return &children[key]; }
-    void setValue(const char*, const char*) {}
-};
+#include <JsonNode.h>
 class IConfigHandler {
 public:
     virtual void writeConfigTo(JsonNode&, bool) = 0;

@@ -24,6 +24,7 @@ struct TestFileSystem {
     std::map<std::string, std::shared_ptr<std::vector<uint8_t>>> files;
     bool failRename = false;
     unsigned writes = 0;
+    bool exists(const char *path) { return files.count(path) != 0; }
     File open(const char *path, const char *mode) {
         if (*mode == 'w') {
             ++writes;
