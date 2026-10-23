@@ -110,6 +110,7 @@ void setup() {
     runDebugTests();
   #endif
 
+  oGasCounter.beginPersistence();
   oGasCounter.startMonitoring();
   Appl.start();
   DEBUG_FUNC_END();

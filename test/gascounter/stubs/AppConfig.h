@@ -1,2 +1,4 @@
 #pragma once
 #define MSG_GASCOUNTER_TICK 1234
+
+#define MSG_APPL_SHUTDOWN 1235

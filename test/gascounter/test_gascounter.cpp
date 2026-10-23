@@ -1,5 +1,7 @@
 #include "TestRuntime.h"
 #include <GasCounter.h>
+#include <AppConfig.h>
+#include <LittleFS.h>
 #include <cmath>
 #include <cstdlib>
 #include <iostream>
@@ -50,6 +52,66 @@ static void tick(CGasCounter& counter, uint32_t now) {
 int main() {
     setenv("TZ", "UTC0", 1);
     tzset();
+    {
+        reset();
+        date(2026, 10, 23);
+        LittleFS.files.clear();
+        {
+            CGasCounter counter(5);
+            assert(!counter.beginPersistence()); // Erster Start ohne Datei.
+            counter.startMonitoring();
+            tick(counter, 1000);
+            tick(counter, 2000);
+            assert(counter.saveState(true));
+            const unsigned writes = LittleFS.writes;
+            counter.dispatch();
+            assert(LittleFS.writes == writes); // Kein Flash-Schreiben im Leerlauf.
+        }
+        {
+            CGasCounter restored(5);
+            assert(restored.beginPersistence());
+            assert(restored.getCurrentGasCounter() == 2);
+            near(restored.Status.fTotalConsumedValue, 0.02f);
+            near(restored.Status.fTodayConsumedValue, 0.02f);
+            near(restored.getConsumedCubicMetersInLastHour(), 0.02f);
+            near(restored.getCurrentConsumedCubicMeters(), 0);
+            restored.startMonitoring();
+            LittleFS.failRename = true;
+            tick(restored, 3000);
+            LittleFS.failRename = false;
+        }
+        date(2026, 10, 24);
+        {
+            CGasCounter restored(5);
+            assert(restored.beginPersistence()); // Alter Stand bei fehlgeschlagenem Austausch.
+            assert(restored.getCurrentGasCounter() == 2);
+            date(2026, 10, 24);
+            restored.dispatch();
+            near(restored.Status.fTodayConsumedValue, 0);
+            near(restored.Status.fYesterdayConsumedValue, 0.02f);
+        }
+        {
+            CGasCounter restored(5);
+            assert(restored.beginPersistence());
+            near(restored.Status.fYesterdayConsumedValue, 0.02f);
+            near(restored.getConsumedCubicMetersInLastHour(), 0);
+        }
+        {
+            CGasCounter restored(5);
+            assert(restored.beginPersistence());
+            restored.Status.fTotalCounter = 42.5f;
+            restored.receiveEvent(nullptr, MSG_APPL_SHUTDOWN, nullptr, 0);
+        }
+        {
+            CGasCounter restored(5);
+            assert(restored.beginPersistence());
+            near(restored.Status.fTotalCounter, 42.5f);
+        }
+        (*LittleFS.files["/gascounter.state"])[0] ^= 1;
+        CGasCounter corrupt(5);
+        assert(!corrupt.beginPersistence());
+        assert(corrupt.getCurrentGasCounter() == 0);
+    }
     {
         reset(0);
         CGasCounter counter(5);

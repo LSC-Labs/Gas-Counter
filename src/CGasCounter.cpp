@@ -71,6 +71,7 @@ void CGasCounter::dispatch() {
     if (nTicks == 0) {
         // Nach langem Stillstand darf ein millis()-Umlauf keinen alten Durchfluss reaktivieren.
         if (getCurrentConsumedCubicMeters() == 0.0f) Status.ulPeriodTimeMillis = 0;
+        saveState();
         return;
     }
 
@@ -84,6 +85,7 @@ void CGasCounter::dispatch() {
         // Der synchrone Bus und seine Empfänger dürfen jetzt Speicher allozieren.
         Appl.MsgBus.sendEvent(this, MSG_GASCOUNTER_TICK, nullptr, m_nPin);
     }
+    saveState();
 }
 
 /**
@@ -160,7 +162,10 @@ void CGasCounter::writeStatusTo(JsonNode &oStatusNode, int nLevel)
 }
 
 int CGasCounter::receiveEvent(const void * pSender, int nMsg, const void * pMessage, int nMsgInfo) {
-    // Currently not used; placeholder for future event handling.
+    if (nMsg == MSG_APPL_SHUTDOWN) {
+        dispatch();
+        saveState(true);
+    }
     return EVENT_MSG_RESULT_OK ;
 }
 

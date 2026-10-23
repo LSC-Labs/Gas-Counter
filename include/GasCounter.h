@@ -11,7 +11,7 @@ struct GasCounterConfig {
 };
 
 struct GasCounterStatus {
-    unsigned long ulTotalTickCounter = 0;  // Number of total ticks counted since power on
+    unsigned long ulTotalTickCounter = 0;  // Persistierte Anzahl akzeptierter Impulse
     unsigned long ulLastCountInMillis = 0;   // Last tick in millis
     unsigned long ulPeriodTimeMillis = 0;  // Last period since previous tick in millis
 
@@ -42,6 +42,12 @@ class CGasCounter : CInputPinController, public IModule, public IHomeAssistantCo
         uint32_t m_ulMinuteStartedAt = 0;
         long m_lCurrentDay = -1;
 
+        bool m_bStorageEnabled = false;
+        bool m_bStateSaved = false;
+        unsigned long m_ulSavedTicks = 0;
+        long m_lSavedDay = -1;
+        float m_fSavedToday = 0;
+        float m_fSavedYesterday = 0;
         void adjustDayCounters();
        
         void IRAM_ATTR interruptHandler();
@@ -60,6 +66,9 @@ class CGasCounter : CInputPinController, public IModule, public IHomeAssistantCo
         void insertComponentDiscovery(const char * pszComponentName,JsonNode & oComponents, CMQTTController *pController) override;
         void setup(int nPortNumber);
         void startMonitoring();
+        // Nach Initialisierung von LittleFS, vor startMonitoring() aufrufen.
+        bool beginPersistence();
+        bool saveState(bool force = false);
         void dispatch();
 
         // Aktueller aktiv-low Eingangszustand für die Impulsanzeige.
