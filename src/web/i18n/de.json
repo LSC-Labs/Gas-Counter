@@ -188,6 +188,13 @@
       "network": "Netzwerk",
       "mqtt": "Message Broker"
     },
+    "gascounter": {
+      "m3hTotal": "Insgesammt verbraucht",
+      "m3hToday": "Heute",
+      "m3hPrevday": "Gestern",
+      "m3hCurrent": "Aktueller Verbrauch",
+      "m3hLastHour": "Verbraucht in der letzten Stunde"
+    },
     "legend": "Status - $(prog_name) Ver.: $(prog_ver)",
     "hostname": "Systemname",
     "uptime": "Laufzeit",
@@ -202,7 +209,7 @@
     "netmask": "Netzwerk Maske",
     "dns": "DNS Server",
     "mac": "MAC Adresse",
-    "enabled": "Aktviert",
+    "enabled": "Aktiviert",
     "connected": "Verbunden",
     "lastConStart": "Sart der Verbindung",
     "lastConLost": "Ende der letzten Verbindung",

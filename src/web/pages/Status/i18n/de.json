@@ -19,13 +19,20 @@
         "netmask"   : "Netzwerk Maske",
         "dns"       : "DNS Server",
         "mac"       : "MAC Adresse",
-        "enabled"   : "Aktviert",
+        "enabled"   : "Aktiviert",
         "connected" : "Verbunden",
         "lastConStart"  : "Sart der Verbindung",
         "lastConLost"   : "Ende der letzten Verbindung",
         "disconReason"  : "Ursache des Abbruchs",
         "memOK"         : "$(sketch_size) Kb genutzt von $(flash_available) Kb => $(flash_used_percent)%",
-        "memWarn"       : "Zu wenig Speicher für einen OTA Update! $(flash_used_percent)% genutzt."
+        "memWarn"       : "Zu wenig Speicher für einen OTA Update! $(flash_used_percent)% genutzt.",
 
+        "gascounter": {
+            "m3hTotal"    : "Insgesammt verbraucht",
+            "m3hToday"    : "Heute",
+            "m3hPrevday"  : "Gestern",
+            "m3hCurrent"  : "Aktueller Verbrauch",
+            "m3hLastHour" : "Verbraucht in der letzten Stunde"
+        }
     }
 }
