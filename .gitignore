@@ -9,6 +9,7 @@ data/config.json
 node_modules
 bin/*
 tmp/*
+logs/*
 src/web/test*
 dist/tmp
 dist/web
