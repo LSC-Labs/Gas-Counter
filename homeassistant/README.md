@@ -6,7 +6,7 @@ diesem Ordner ergänzen das um kWh-Umrechnung, Kosten und eine fertige
 Dashboard-Ansicht.
 
 | Datei | Inhalt |
-|---|---|
+| --- | --- |
 | [packages/gas_counter.yaml](packages/gas_counter.yaml) | Helfer (Brennwert, Zustandszahl, Preise), Template-Sensoren, Verbrauchszähler |
 | [dashboard/gas_counter_dashboard.yaml](dashboard/gas_counter_dashboard.yaml) | Dashboard „Gas“ (nur Standardkarten) |
 
@@ -24,7 +24,7 @@ Dashboard-Ansicht.
 ## Vom Gerät angelegte Sensoren
 
 | Entität | Bedeutung | Klasse |
-|---|---|---|
+| --- | --- | --- |
 | `sensor.gascounter_meter_reading` | Zählerstand der Gasuhr (m³) | gas, total_increasing |
 | `sensor.gascounter_flow` | aktueller Durchfluss (m³/h) | volume_flow_rate, measurement |
 | `sensor.gascounter_last_hour` | Verbrauch der letzten 60 Minuten (m³), gleitend | measurement |
@@ -106,4 +106,8 @@ Dashboard anlegen:
   anpassen.
 - **Discovery prüfen:**
   `mosquitto_sub -v -t 'homeassistant/device/+/config' -t '<topic>/state'`
-  zeigt das Discovery-Dokument und die State-Meldungen.
+  zeigt das Discovery-Dokument und die State-Meldungen. Die Discovery wird
+  bewusst **nicht** retained gesendet. Sie erscheint nur beim (Wieder-)Verbinden
+  des Geräts und wenn Home Assistant „online“ meldet. Zum Prüfen also erst
+  `mosquitto_sub` starten und danach den Gas Counter neu starten. Der State
+  ist retained und daher jederzeit sichtbar.

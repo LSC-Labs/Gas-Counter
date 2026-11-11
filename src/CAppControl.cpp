@@ -18,6 +18,7 @@
 #include <EventHandler.h>
 #include <LSCUtils.h>
 #include <GasCounter.h>
+#include <MQTTController.h>
 
 // Intervall für die regelmäßige Veröffentlichung des States (Home Assistant).
 // Ohne sie fiele z.B. der Durchfluss in HA nie auf 0 und "Heute" würde erst
@@ -121,7 +122,8 @@ void CAppControl::publishState(const char *pszType, GasCounterTickMsg *pTickMsg)
         oMsgDoc["timestamp"]    = pTickMsg->oTimeStamp;
         oMsgDoc["isotime"]      = LSC::getISODateTime(pTickMsg->oTimeStamp,tTimeBuffer,sizeof(tTimeBuffer));
     }
-    Appl.MsgBus.sendEvent(this,MSG_MQTT_SEND_JSONSTATE,&oMsgDoc,0);
+    // Retained: Home Assistant gets the last state immediately after its restart.
+    Appl.MsgBus.sendEvent(this,MSG_MQTT_SEND_JSONSTATE,&oMsgDoc,MQTT_SEND_RETAINED);
     m_ulLastStatePublish = millis();
     m_bPublishStateRequested = false;
 }

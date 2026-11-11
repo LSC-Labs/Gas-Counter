@@ -281,25 +281,28 @@ void CGasCounter::insertComponentDiscovery(const char * pszComponentName,JsonNod
         strEntityID += "_";
         strEntityID += oSensor.pszObjectID;
 
-        // A missing value (i.e. no last tick yet) renders "None" => state "unknown".
+        // A missing value (meter reading not yet set, no tick yet) renders "None" => state "unknown".
         String strValueTemplate = "{{ value_json.";
         strValueTemplate += pszComponentName;
         strValueTemplate += ".";
         strValueTemplate += oSensor.pszField;
         strValueTemplate += " | default(None) }}";
 
+        // Official HA abbreviations keep the discovery document small - on the ESP8266
+        // AsyncMqttClient drops messages, if no contiguous heap block of that size is free.
+        // see https://github.com/home-assistant/core/blob/dev/homeassistant/components/mqtt/abbreviations.py
         JsonNode *pSensor = oComponents.getObject(strComponentID.c_str(), true);
         pSensor->setValue("p", "sensor");
         pSensor->setValue("name", oSensor.pszName);
-        pSensor->setValue("unique_id", strUniqueID.c_str());
-        pSensor->setValue("default_entity_id", strEntityID.c_str());
-        pSensor->setValue("value_template", strValueTemplate.c_str());
-        pSensor->setValue("icon", oSensor.pszIcon);
-        if (oSensor.pszUnit)         pSensor->setValue("unit_of_measurement", oSensor.pszUnit);
-        if (oSensor.pszDeviceClass)  pSensor->setValue("device_class", oSensor.pszDeviceClass);
-        if (oSensor.pszStateClass)   pSensor->setValue("state_class", oSensor.pszStateClass);
-        if (oSensor.nPrecision >= 0) pSensor->setValue("suggested_display_precision", oSensor.nPrecision);
-        if (oSensor.bDiagnostic)     pSensor->setValue("entity_category", "diagnostic");
+        pSensor->setValue("uniq_id", strUniqueID.c_str());
+        pSensor->setValue("def_ent_id", strEntityID.c_str());
+        pSensor->setValue("val_tpl", strValueTemplate.c_str());
+        pSensor->setValue("ic", oSensor.pszIcon);
+        if (oSensor.pszUnit)         pSensor->setValue("unit_of_meas", oSensor.pszUnit);
+        if (oSensor.pszDeviceClass)  pSensor->setValue("dev_cla", oSensor.pszDeviceClass);
+        if (oSensor.pszStateClass)   pSensor->setValue("stat_cla", oSensor.pszStateClass);
+        if (oSensor.nPrecision >= 0) pSensor->setValue("sug_dsp_prc", oSensor.nPrecision);
+        if (oSensor.bDiagnostic)     pSensor->setValue("ent_cat", "diagnostic");
     }
 }
 
