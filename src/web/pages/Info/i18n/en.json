@@ -1,10 +1,11 @@
 {
     "Info": {
-        "legend"      : "Consuming",
-        "m3hTotal"    : "Total",
-        "m3hToday"    : "Today",
-        "m3hPrevday"  : "Yesterday",
-        "m3hCurrent"  : "Actual",
-        "m3hLastHour" : "Last hour"
-        }
+        "legend": "Consuming",
+        "m3hTotal": "Total",
+        "m3hToday": "Today",
+        "m3hPrevday": "Yesterday",
+        "m3hCurrent": "Actual",
+        "m3hLastHour": "Last hour",
+        "MeterReading": "Meter reading"
+    }
 }

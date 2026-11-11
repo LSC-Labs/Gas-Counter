@@ -152,7 +152,7 @@ class CSecurity
  * 
  */
 class CVarTable {
-    _tVars = [];       // Array with the var values.
+    _tVars = {};       // Map with the var values (name => value).
 
     /**
      * Set default Prog vars, so they can be used by the application.
@@ -167,17 +167,17 @@ class CVarTable {
     /**
      * Set a var by name...
      * @param {*} strName   The name of the var (mandatory)
-     * @param {*} strValue The value to be set... if not set, the var will be deleted
+     * @param {*} strValue The value to be set... if undefined or null, the var will be deleted.
+     *                      "", 0 and false are valid values.
      * @returns the VarTable
      */
     setVar(strName, strValue) {
         if(strName) {
-            if(strValue) {
-                this._tVars[strName] = strValue;
+            if(strValue === undefined || strValue === null) {
+                delete this._tVars[strName];
             }
             else {
-                let nPos = this._tVars.indexOf(strName);
-                if(nPos > -1) this._tVars.splice(nPos,1);
+                this._tVars[strName] = strValue;
             }
         }
         return(this);
@@ -191,8 +191,9 @@ class CVarTable {
      */
     setVars(oData) {   
         if(oData) {
-            let tVars = Array.isArray(oData) ? oData : Array.isArray(oData._tVars) ? oData._tVars : undefined;
-            if(Array.isArray(tVars)) {
+            let tVars = Array.isArray(oData) ? oData :
+                        Utils.isInstanceOf(oData,"CVarTable") ? oData._tVars : undefined;
+            if(tVars) {
                 for(const strKey in tVars) { 
                     this._tVars[strKey] = tVars[strKey] 
                 }
@@ -216,10 +217,10 @@ class CVarTable {
             let oBase = CElement.asNative(oElement);
             oBase.querySelectorAll(strTable).forEach((t) => {
                 try {
-                    let tVars = JSON.parse(t.innerText);
+                    let tVars = JSON.parse(t.textContent);
                     for(const strKey in tVars) this.setVar(strKey,tVars[strKey]);
                 } catch (ex){
-                    Log.logEx(ex,"json : " + t.innerText);
+                    new CLog().logEx(ex,"json : " + t.textContent);
                 }
             })
         }
@@ -242,13 +243,15 @@ class CVarTable {
      */
     subst(str) {
         let strResult = "";
-        let nIterations = 7;
+        let nIterations = 7;    // vars may contain vars - limit the depth (avoid endless loops)
         if(str && typeof str === 'string') {
             strResult = str;
-            let nTokenPos = strResult.indexOf("$(");
-            while(nIterations-- > 0 && nTokenPos > -1) {
+            let strPrev;
+            while(nIterations-- > 0 && strResult.indexOf("$(") > -1 && strResult !== strPrev) {
+                strPrev = strResult;
                 for(const strKey in this._tVars) {
-                    strResult = strResult.replaceAll("$(" + strKey + ")",this._tVars[strKey]);
+                    // split/join - the value is inserted literally ("$&", "$$" in values stay untouched)
+                    strResult = strResult.split("$(" + strKey + ")").join(String(this._tVars[strKey]));
                 }
             }
         }
@@ -268,6 +271,7 @@ class Utils {
     static capitalizeFirstLetter(strWord) {
         let oResult = strWord;
         if(Utils.isString(strWord)) oResult = String(strWord).charAt(0).toUpperCase() + String(strWord).slice(1);
+        return(oResult);
     }
 
     static isFalseValue(oValue) {
@@ -277,7 +281,9 @@ class Utils {
             bResult = [ "false", "0", "no", "off" ].includes(oValue);
         } else if(this.isBoolean(oValue)) {
             bResult = !oValue;
-        } else if(oValue === undefined) {
+        } else if(typeof oValue === 'number') {
+            bResult = oValue === 0 || Number.isNaN(oValue);
+        } else if(oValue === undefined || oValue === null) {
             bResult = true;
         }
         return(bResult);
@@ -619,7 +625,7 @@ class CElement extends Utils {
      * @param {bool} bDisable (default = true) 
      */
     disable(bDisable = true) {
-        return(enable(!bDisable));
+        return(this.enable(!bDisable));
     }
 
     /**
@@ -632,7 +638,8 @@ class CElement extends Utils {
         let oBE = this.getBase();
         let bResult = oBE ? true : false;
         if(oBE && oBE.nodeName !== "BODY") {
-            if(oBE.disabled || oBE.style.display === "none" || oBE.style.visibility === "hidden") {
+            if(oBE.disabled || (oBE.style && (oBE.style.display === "none" || oBE.style.visibility === "hidden")) ||
+               (oBE.classList && oBE.classList.contains("isHidden"))) {
                 bResult = false;
             } else {
                 if(bRecursive) {
@@ -696,13 +703,13 @@ class CElement extends Utils {
                 if(Utils.isObj(oArgs)) strArgs = strObjPrefix + JSON.stringify(oArgs);
                 this.data("evtArgs",strArgs);
             } catch(ex) {
-                this.Log.logEx(ex,"Args for event listener");
+                new CLog().logEx(ex,"Args for event listener");
             };
         } else {
             oResult = this.data("evtArgs");
             try {
-                if(oResult.startsWith(strObjPrefix)) {
-                    oResult = JSON.parse(strArgs.substring(strObjPrefix.length))
+                if(Utils.isString(oResult) && oResult.startsWith(strObjPrefix)) {
+                    oResult = JSON.parse(oResult.substring(strObjPrefix.length))
                 } 
             } catch {}
         }
@@ -967,9 +974,13 @@ class CElement extends Utils {
      */
     setText(strText) {
         let oElement = this.getBase();
-        if(strText && oElement) {
+        if(Utils.isString(strText) && strText && oElement) {
             if(strText.startsWith("i18n:")) oElement.dataset.i18n = strText.substring(5);
-            else oElement.innerHTML = strText;
+            else {
+                // plain text - an old i18n key would overwrite the text on the next translation
+                delete oElement.dataset.i18n;
+                oElement.innerHTML = strText;
+            }
         }
         return(this);
     }
@@ -987,9 +998,9 @@ class CElement extends Utils {
             if(!oElement.type) oElement.innerText = oValue;
             else {
                 switch(oElement.type) {
-                    case "password"   :
-                    case "number":
-                    case "text"       : oElement.value = oValue; break;
+                    case "button"     :
+                    case "submit"     :
+                    case "reset"      : break;  // no value to set - use setText()
                     case "select-one" : // Select the option if exists - if not, append...
                                         let bExists = false;
                                         let strVal = oValue;
@@ -999,7 +1010,11 @@ class CElement extends Utils {
                                             }
                                         };
                                         if(!bExists) {
-                                            oElement.innerHTML += "<option value='" + oValue + "'>" + oValue + "</option>"; 
+                                            // create the option as element - the value is not interpreted as html
+                                            let oOption = document.createElement("option");
+                                            oOption.value = oValue;
+                                            oOption.textContent = oValue;
+                                            oElement.appendChild(oOption);
                                         }
                                         oElement.value = strVal;
                                         break;
@@ -1010,6 +1025,9 @@ class CElement extends Utils {
 
                     case "radio"      : // Set the checked radio button to true / false.
                                         oElement.checked = oElement.value == oValue;
+                                        break;
+                    default           : // text, password, number, range, hidden, textarea, output, email, ...
+                                        if("value" in oElement) oElement.value = oValue;
                                         break;
                 }
             }
@@ -1028,11 +1046,10 @@ class CElement extends Utils {
         let oElement = this.getBase();
         if(oElement) {
             switch(oElement.type) {
-                case "password"   :
-                case "number":
-                case "text"       : oResult = oElement.value; 
-                                    if(!oResult) oResult = "";
-                                    break;
+                case undefined    :
+                case "button"     :
+                case "submit"     :
+                case "reset"      : break;
                 case "select-one" : // Try to get the specialized value first (i.E. ssid display is different, but the value to be stored
                                     // is in the option field "ssid").
                                     // If not in place, use the value of the element
@@ -1045,6 +1062,9 @@ class CElement extends Utils {
                 case "radio"      : // The value of the checked element will be the result.
                                     // unchecked radio buttons will result in undefined
                                     if(oElement.checked || bNative) oResult = oElement.value;
+                                    break;
+                default           : // text, password, number, range, hidden, textarea, output, email, ...
+                                    if("value" in oElement) oResult = oElement.value || "";
                                     break;
             }
         }
@@ -1104,7 +1124,7 @@ class CElement extends Utils {
                 oElement.style.opacity = nOpacity;
                 oElement.style.filter = "alpha(opacity=" + nOpacity * 100 + ")";
                 }, 50 );
-        } else {
+        } else if(oElement) {
             oElement.style.opacity = 0;
             oElement.style.filter = "alpha(opacity=0)";
             oElement.style.display = "none";
@@ -1175,7 +1195,7 @@ class CTemplates {
      */
     findIconDef(strName) {
         let oIcon = null;
-        for (const i of this._Settings.getSection("icons.d")) {
+        for (const i of this._Settings.getSection("icons.d") ?? []) {
             if (i.name === strName) {
                 oIcon = i;
                 break;
@@ -1243,7 +1263,7 @@ class CTemplates {
             }
             else {
                 oIcon = CElement.ce("i");
-                oIcon.acn(eIconDef.class); // Assuming the icon is a class name
+                oIcon.acn(oIconDef.class); // Assuming the icon is a class name
                 if(oIconDef.i18n) oIcon.getBase().dataset.i18n = oIconDef.i18n + ".title";
             }
             if(oIcon) {
@@ -1320,12 +1340,15 @@ class CTemplates {
     createElementType(oElement,pEventHandler) {
         if(oElement) {
             let oNEL = CElement.asNative(oElement);
+            let oResult;
             switch(oNEL.dataset.elementType) {
-                case "save-btn-row": this.createSaveBtnRow(oElement,pEventHandler); break;
-                case "save-btn" :    this.createSaveButton(oElement,pEventHandler); break;
+                case "save-btn-row": oResult = this.createSaveBtnRow(oElement,pEventHandler); break;
+                case "save-btn" :    oResult = this.createSaveButton(oElement,pEventHandler); break;
                 case "expand":       this.expandElement(oElement,pEventHandler);    break;
             }
-            oNEL.removeAttribute("data-element");
+            // processed - avoid a second processing (also on the replacement, as attrFrom copies the attribute)
+            oNEL.removeAttribute("data-element-type");
+            if(oResult) CElement.asNative(oResult).removeAttribute("data-element-type");
         }
     }
 
@@ -1363,8 +1386,11 @@ class CTemplates {
         
         // oButton.attr("formAction","void()")
         oSource.replaceWith(oButton);
+        oButton.evtArgs("savePage");
         if(pEventHandler && Utils.isFunction(pEventHandler.savePage)) {
-            oSource.on("click",pEventHandler.savePage.bind(pEventHandler),"savePage");
+            oButton.on("click",pEventHandler.savePage.bind(pEventHandler));
+            // CView.loadView() must not register the save handler a second time
+            oButton.getBase()._bSavePageBound = true;
         }
         return(oButton);
     }
@@ -1477,7 +1503,8 @@ class CAppSettings extends CConfig {
 class CTranslator {
     // default language is "en" - english, if not set in the document root element.
     static _defaultLang = document.documentElement.lang ? document.documentElement.lang.substring(0,2) : "en";
-    static _tLangDefs = [];
+    static _tLangDefs = {};
+    static _tLoading  = {};     // language => promise of a running load (avoid parallel fetches)
     _userLang    = this.getUserLanguage() ?? CTranslator._defaultLang;
     _strLoadPath;  // = "i18n";
 
@@ -1510,7 +1537,11 @@ class CTranslator {
         let oResult = {};
         if(strLanguage) {
             let oLangDef = CTranslator._tLangDefs[strLanguage]; 
-            if(!oLangDef) {
+            if(!oLangDef && CTranslator._tLoading[strLanguage]) {
+                // already loading - wait for the running request
+                await CTranslator._tLoading[strLanguage];
+            }
+            else if(!oLangDef) {
                 oLangDef = {
                     "_": {
                         "lang": strLanguage,
@@ -1518,8 +1549,7 @@ class CTranslator {
                         "statusText": "loading"
                     }
                 }
-                // CTranslator._tLangDefs[strLanguage] = {...oLangDef};
-                await fetch(`${this._strLoadPath}/${strLanguage}.json`)
+                CTranslator._tLoading[strLanguage] = fetch(`${this._strLoadPath}/${strLanguage}.json`)
                     .then(oResponse => {
                         oLangDef._.status       = oResponse.status;
                         oLangDef._.statusText   = oResponse.statusText;
@@ -1539,7 +1569,9 @@ class CTranslator {
                         oLangDef._.statusText = ex.message;
                         CTranslator._tLangDefs[strLanguage] = oLangDef;
                         return oLangDef; 
-                    });
+                    })
+                    .finally(() => { delete CTranslator._tLoading[strLanguage]; });
+                await CTranslator._tLoading[strLanguage];
             }
             oResult = CTranslator._tLangDefs[strLanguage];
         }
@@ -1553,7 +1585,7 @@ class CTranslator {
      * @returns the language code
      */
     getUserLanguage(){
-        let strLang = navigator.languages ? navigator.languages[0]: navigator.language;
+        let strLang = (navigator.languages && navigator.languages[0]) || navigator.language || CTranslator._defaultLang;
         return(strLang.substring(0,2));
     }
 
@@ -1623,7 +1655,7 @@ class CTranslator {
             .then(oUserLangDef => {
                 oData = this.getI18nData(i18nKey,oUserLangDef);
                 if(!oData) {
-                    oData = this.getI18nData(i18nKey,oDefaultLangDef,oDefaultData);
+                    oData = this.getI18nData(i18nKey,oDefaultLangDef) ?? oDefaultData;
                 }
                 return(oData);
             }));
@@ -1699,7 +1731,7 @@ class CTranslator {
                     for(let strLine of oData) s += strLine;
                     oData = s;
                 }
-                strResult = Utils.isInstanceOf(oVars,CVarTable) ? oVars.subst(oData) : oData;
+                strResult = Utils.isInstanceOf(oVars,"CVarTable") ? oVars.subst(oData) : oData;
             })
         return(strResult);
     }
@@ -1737,7 +1769,9 @@ class CTranslator {
                             // Syntax 1: "target:key|..." 
                             if(strTarget) {
                                 // If an attribute is defined as target, set the attribute 1:1 with the result.
-                                if(strTarget.startsWith("@")) oElement.setAttribute(strTarget.substring(1),oData);
+                                if(strTarget.startsWith("@")) {
+                                    if(oData !== undefined) oElement.setAttribute(strTarget.substring(1),this._resolveToString(oData,oVars));
+                                }
                                 // Otherwise, set the inner html of the target element 
                                 else {
                                     let oTargetElement = oElement.querySelector(strTarget);
@@ -1826,17 +1860,18 @@ class CView extends CElement {
             let strContent;
             if(Utils.isString(oData)) strContent = oData;
             else if(Utils.isElement(oData)) strContent = oData.innerHTML;
-            else if(Utils.isInstanceOf(CElement)) strContent = oData.getBase().innerHTML;
+            else if(Utils.isInstanceOf(oData,"CElement")) strContent = oData.getBase().innerHTML;
 
             if(strContent) {
                 this.rc("isLoaded");
                 this.data("cfg",null);
-                // set the content to scan for var definition.. in "PageVars"
-                // then load all needed vars, substitute the content and load again
-                this.html(strContent);
+                // scan the content for var definitions in "PageVars" (in a template - not rendered,
+                // so nothing is loaded with unsubstituted vars), then substitute the content and load it.
+                let oTemplate = document.createElement("template");
+                oTemplate.innerHTML = strContent;
                 this.LocalVars = new CVarTable();
                 this.LocalVars.setVars(tVars); // empty object will be covered by CVarTable()
-                this.LocalVars.setPageVars(this.getArea(),"PageVars");
+                this.LocalVars.setPageVars(oTemplate.content,"PageVars");
                 // If Payload object contains a var object, set this vars also...
                 let oPayload = this.Payload();
                 if(Utils.isObj(oPayload)) this.LocalVars.setVars(oPayload.vars);
@@ -1885,7 +1920,10 @@ class CView extends CElement {
                     })
                     // Register button clicks... if no handler is defined, on no evtArgs is in place (prev. handler)
                     this.gelAll("button:not([onclick])").forEach((ec) => {
-                        if(ec.evtArgs() == "savePage") {
+                        if(ec.getBase()._bSavePageBound) {
+                            // already bound by CTemplates.createSaveButton()
+                        }
+                        else if(ec.evtArgs() == "savePage") {
                             ec.on("click",pCaller.savePage.bind(pCaller),"savePage");
                         }
                         else {
@@ -2372,23 +2410,29 @@ class CDialog extends CElement {
         if(oSecBtn.hasBase()) {
             let strC = oData.cancelBtn;
             oSecBtn.show(strC ? true : false);
-            oSecBtn.setValue(Utils.isString(strC) ? strC : "i18n:main.cancel");
+            oSecBtn.setText(Utils.isString(strC) ? strC : "i18n:main.cancel");
         }
         if(oPriBtn.hasBase()) {
-            oPriBtn.setValue(oData.okBtn ?? "i18n:main.ok");
+            oPriBtn.setText(oData.okBtn ?? "i18n:main.ok");
+            // The dialog element is reused - remove the handler of the previous call,
+            // otherwise the OK action is executed once for each previous showModal().
+            let oBtn = oPriBtn.getBase();
+            if(oBtn._fnOnOK) oBtn.removeEventListener("click", oBtn._fnOnOK);
+            oBtn._fnOnOK = undefined;
             if(!oData.keepOpen) {
-                oPriBtn.on("click", oData.onOK ?? this.close.bind(this));
+                oBtn._fnOnOK = oData.onOK ?? this.close.bind(this);
+                oBtn.addEventListener("click", oBtn._fnOnOK);
             }
         }
         let oTranse = new CTranslator();
         oTranse.translate(this.getBase())
             .then( (e) => {
                 let oDlg = this.getBase();
-                // remove the blur effect...
+                // remove the blur effect... (once per showModal)
                 oDlg.addEventListener("close", (e) => {
                     document.body.classList.remove("modal-open");
-                });
-                oDlg.showModal();
+                }, { once: true });
+                if(!oDlg.open) oDlg.showModal();
             });
         // add the blur effect to the background...
         document.body.classList.add("modal-open")
@@ -2451,7 +2495,7 @@ class CWaitDialog extends CDialog {
         let nTotalSecs = oData.timeOutSecs ?? 10;    // runtime (default 10secs)
 
         let nStepWidth = (100 / nTotalSecs) / (1000 / nTickTimer);
-        this.getBase().showModal();
+        if(!this.getBase().open) this.getBase().showModal();
         this._ActTimerID = setInterval(() => {
             nCurStatus = nCurStatus + nStepWidth;
             if(nCurStatus >= 100) {
@@ -2468,8 +2512,13 @@ class CSigninDialog extends CDialog {
     constructor(oOptions) {
         super("#signinDialog",oOptions);
         this._oForm = this.gel("form");
-        this._oForm.reset();
-        this._oForm.on("submit",this.onSubmit.bind(this));
+        let oForm = this._oForm.getBase();
+        oForm.reset();
+        // The dialog element is reused - replace the submit handler of a previous instance,
+        // otherwise each previous signin dialog sends its own login request.
+        if(oForm._fnOnSubmit) oForm.removeEventListener("submit", oForm._fnOnSubmit);
+        oForm._fnOnSubmit = this.onSubmit.bind(this);
+        oForm.addEventListener("submit", oForm._fnOnSubmit);
         this._Options.keepOpen = true;
         this._oPasswd = this.gel("[name='password']");
         this._oPasswd.setValue("");
@@ -2537,10 +2586,10 @@ class CWebSocketV2 {
     _getConnectionUri() {
         // Prepare the websocket URI
         let strSocketName = this.Options.socketName ?? "ws";
-        let strHostName = window.location.hostname;
-        let wsUri = `ws://${strHostName}/${strSocketName}`;
+        let strHost = window.location.host;    // host name incl. port (if not the default port)
+        let wsUri = `ws://${strHost}/${strSocketName}`;
         if (window.location.protocol === "https:") {
-            wsUri = `wss://${strHostName}:${window.location.port}/${strSocketName}`;
+            wsUri = `wss://${strHost}/${strSocketName}`;
         } else if (window.location.protocol === "file:" ||
             ["0.0.0.0", "localhost", "127.0.0.1"].includes(window.location.hostname)) {
             wsUri = `ws://localhost:8080/${strSocketName}`;
@@ -2569,23 +2618,34 @@ class CWebSocketV2 {
 
     // #region open, close and monitor the connection
 
+    /**
+     * is a socket open or still connecting ? (then no new socket is needed)
+     */
+    _isSocketActive() {
+        // 0 == CONNECTING, 1 == OPEN
+        return(this._oWebSocket != null && (this._oWebSocket.readyState === 0 || this._oWebSocket.readyState === 1));
+    }
+
     _openSocket() {
-        if(!this._isConnectionAvailable) {    
+        if(!this._isConnectionAvailable && !this._isSocketActive()) {    
             this.Log.logVerbose("WS: creating WebSocket");
-            this._oWebSocket = new WebSocket(this._getConnectionUri());
+            let oWS = new WebSocket(this._getConnectionUri());
+            this._oWebSocket = oWS;
             let oSelf = this;
-            // Register the handler....
-            this._oWebSocket.addEventListener("message", function(oMsg) {
-                oSelf._onMsgReceived(oMsg,this);
+            // Register the handler.... (only the current socket may change the state)
+            oWS.addEventListener("message", function(oMsg) {
+                if(oSelf._oWebSocket === oWS) oSelf._onMsgReceived(oMsg,this);
             });
-            this._oWebSocket.onopen  = function(evt) { 
+            oWS.onopen  = function(evt) { 
+                if(oSelf._oWebSocket !== oWS) return;
                 oSelf._isConnectionAvailable = true;
                 oSelf.Log.logVerbose("WS: connection opened");
                 oSelf._onStatusChanged(oSelf.constructor.WS_OPEN);
                 EC("#statusInfo").fadeOut();
             };
             // onclose will be called on close and if it cannot be opened...
-            this._oWebSocket.onclose = function(evt) { 
+            oWS.onclose = function(evt) { 
+                if(oSelf._oWebSocket !== oWS) return;
                 oSelf.Log.logVerbose("WS: connection closed");
                 oSelf._isConnectionAvailable = false;
                 oSelf._onStatusChanged(oSelf.constructor.WS_CLOSE);
@@ -2617,7 +2677,7 @@ class CWebSocketV2 {
         this._openSocket();
         // Monitor the connection ...
 
-        if(bRecon && !this.oMonTimeID) this.oMonTimerID = setInterval(this._monCon.bind(this),5000);
+        if(bRecon && !this.oMonTimerID) this.oMonTimerID = setInterval(this._monCon.bind(this),5000);
     }
 
     /**
@@ -2628,9 +2688,9 @@ class CWebSocketV2 {
     close() {
         this._bDesiredOpen = false;
         // stop the monitor timer, if it is in place...
-        if(this.oMonTimeID) {
-            clearInterval(this.oMonTimeID);
-            this.oMonTimeID = undefined;
+        if(this.oMonTimerID) {
+            clearInterval(this.oMonTimerID);
+            this.oMonTimerID = undefined;
         }
         if(this._oWebSocket) this._oWebSocket.close();
     }
@@ -2861,6 +2921,17 @@ class CSideBar extends CMenuBar {
 
     show() { this.ac("show");}
     hide() { this.rc("show") }
+
+    /**
+     * A page has been selected in the menu.
+     * In the narrow view, the expanded sidebar is hidden again (the class "show" is only
+     * active in the narrow view - so no effect in the wide view).
+     * Expanding a sub menu (dropdown button) is handled by onToggleSubMenu() - the sidebar stays open.
+     */
+    onClicked(oEvent) {
+        super.onClicked(oEvent);
+        this.hide();
+    }
 }
 
 // #endregion
@@ -3268,8 +3339,9 @@ class CAppl {
             if(this.DeviceStatus.DebugMode) this.Log.setDebug(this.DeviceStatus.DebugMode);
 
             // Update the vars from the status, in special the prog name, version and the debug mode.
-            this.Vars.setVar("prog_name",this.DeviceStatus.prog_name);
-            this.Vars.setVar("prog_ver",this.DeviceStatus.prog_version);
+            // setVar(undefined) deletes the var - keep the existing value (settings), if not in the status
+            if(this.DeviceStatus.prog_name    !== undefined) this.Vars.setVar("prog_name",this.DeviceStatus.prog_name);
+            if(this.DeviceStatus.prog_version !== undefined) this.Vars.setVar("prog_ver",this.DeviceStatus.prog_version);
             this.Vars.setVar("DebugMode", Utils.isTrueValue(this.DeviceStatus.DebugMode) ? "1" : "0");
             this._callPageHandler("onUpdateStatusReceived",this,oStatusObj);
         }

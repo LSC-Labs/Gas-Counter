@@ -34,6 +34,8 @@
 
 // Gas counter tick event, emitted by CGasCounter::dispatch() in the main loop.
 #define MSG_GASCOUNTER_TICK     (MSG_USER_BASE + 20)
+// Meter reading was set by the user (state should be published immediately).
+#define MSG_GASCOUNTER_READING_SET (MSG_USER_BASE + 21)
 
 
 

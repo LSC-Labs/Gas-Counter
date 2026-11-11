@@ -1,0 +1,203 @@
+# =============================================================================
+#  Gas Counter - Dashboard (Lovelace)
+# =============================================================================
+#  Nur Standardkarten von Home Assistant, keine Zusatzinstallation nötig.
+#  Benötigt das Package homeassistant/packages/gas_counter.yaml.
+#
+#  Einfügen (komplettes Dashboard):
+#    Einstellungen > Dashboards > "+ Dashboard hinzufügen" > "Neues Dashboard
+#    von Grund auf" > Dashboard öffnen > Stift > drei Punkte (⋮) >
+#    "Raw-Konfigurationseditor" > gesamten Inhalt ersetzen > Speichern.
+#
+#  Nur als zusätzliche Ansicht in einem bestehenden, selbst angelegten
+#  Dashboard: den Block unter "views:" ohne das führende "- " und
+#  linksbündig in den YAML-Editor der neuen Ansicht übernehmen.
+#  (Die automatisch erzeugte "Übersicht" lässt keine eigenen Ansichten zu.)
+# =============================================================================
+views:
+  - title: Gas
+    path: gas
+    icon: mdi:meter-gas
+    type: sections
+    max_columns: 3
+    sections:
+      # ---------------------------------------------------------------------------
+      - type: grid
+        cards:
+          - type: heading
+            heading: Aktuell
+            icon: mdi:meter-gas
+          - type: tile
+            entity: sensor.gascounter_meter_reading
+            name: Zählerstand
+            grid_options:
+              columns: 12
+          - type: gauge
+            entity: sensor.gascounter_flow
+            name: Durchfluss
+            min: 0
+            max: 3
+            needle: true
+            severity:
+              green: 0
+              yellow: 1.5
+              red: 2.5
+          - type: gauge
+            entity: sensor.gas_leistung
+            name: Leistung
+            min: 0
+            max: 30
+            needle: true
+            severity:
+              green: 0
+              yellow: 15
+              red: 25
+          - type: tile
+            entity: binary_sensor.gas_fliesst
+            name: Gas fließt
+          - type: tile
+            entity: sensor.gascounter_last_tick
+            name: Letzter Impuls
+          - type: tile
+            entity: binary_sensor.gas_dauerverbrauch
+            name: Dauerverbrauch
+            grid_options:
+              columns: 12
+            visibility:
+              - condition: state
+                entity: binary_sensor.gas_dauerverbrauch
+                state: "on"
+
+      # ---------------------------------------------------------------------------
+      - type: grid
+        cards:
+          - type: heading
+            heading: Verbrauch
+            icon: mdi:fire
+          - type: tile
+            entity: sensor.gascounter_last_hour
+            name: Letzte Stunde
+          - type: tile
+            entity: sensor.gascounter_today
+            name: Heute
+          - type: tile
+            entity: sensor.gascounter_yesterday
+            name: Gestern
+          - type: tile
+            entity: sensor.gas_energie_heute
+            name: Heute (Energie)
+          - type: tile
+            entity: sensor.gas_verbrauch_woche
+            name: Diese Woche
+          - type: tile
+            entity: sensor.gas_verbrauch_monat
+            name: Dieser Monat
+          - type: tile
+            entity: sensor.gas_verbrauch_jahr
+            name: Dieses Jahr
+            grid_options:
+              columns: 12
+
+      # ---------------------------------------------------------------------------
+      - type: grid
+        cards:
+          - type: heading
+            heading: Kosten
+            icon: mdi:cash
+          - type: tile
+            entity: sensor.gas_kosten_heute
+            name: Heute
+          - type: tile
+            entity: sensor.gas_kosten_gestern
+            name: Gestern
+          - type: tile
+            entity: sensor.gas_kosten_monat
+            name: Dieser Monat (inkl. Grundpreis)
+            grid_options:
+              columns: 12
+          - type: entities
+            title: Tarif (aus der Gasrechnung)
+            state_color: false
+            entities:
+              - entity: input_number.gas_brennwert
+                name: Brennwert
+              - entity: input_number.gas_zustandszahl
+                name: Zustandszahl
+              - entity: input_number.gas_arbeitspreis
+                name: Arbeitspreis
+              - entity: input_number.gas_grundpreis
+                name: Grundpreis
+              - entity: sensor.gas_umrechnungsfaktor
+                name: Faktor m³ → kWh
+              - entity: sensor.gas_preis_pro_m3
+                name: Preis pro m³
+
+      # ---------------------------------------------------------------------------
+      - type: grid
+        column_span: 3
+        cards:
+          - type: heading
+            heading: Verlauf
+            icon: mdi:chart-bar
+          - type: history-graph
+            title: Durchfluss (24 h)
+            hours_to_show: 24
+            entities:
+              - entity: sensor.gascounter_flow
+                name: Durchfluss
+            grid_options:
+              columns: full
+          - type: statistics-graph
+            title: Verbrauch pro Stunde (48 h)
+            chart_type: bar
+            period: hour
+            days_to_show: 2
+            stat_types:
+              - change
+            entities:
+              - entity: sensor.gascounter_meter_reading
+                name: Verbrauch
+            grid_options:
+              columns: full
+          - type: statistics-graph
+            title: Verbrauch pro Tag (30 Tage)
+            chart_type: bar
+            period: day
+            days_to_show: 30
+            stat_types:
+              - change
+            entities:
+              - entity: sensor.gascounter_meter_reading
+                name: Verbrauch
+            grid_options:
+              columns: full
+          - type: statistics-graph
+            title: Verbrauch pro Monat (12 Monate)
+            chart_type: bar
+            period: month
+            days_to_show: 365
+            stat_types:
+              - change
+            entities:
+              - entity: sensor.gascounter_meter_reading
+                name: Verbrauch
+            grid_options:
+              columns: full
+
+      # ---------------------------------------------------------------------------
+      - type: grid
+        cards:
+          - type: heading
+            heading: Diagnose
+            icon: mdi:wrench
+          - type: entities
+            entities:
+              - entity: sensor.gascounter_total
+                name: Verbrauch seit Inbetriebnahme
+              - entity: sensor.gascounter_ticks
+                name: Impulse
+              - entity: sensor.gascounter_volume_per_tick
+                name: Volumen pro Impuls
+              - entity: sensor.gascounter_last_tick
+                name: Letzter Impuls
+                format: datetime

@@ -5,6 +5,11 @@
  * Build context: Gas-Counter
  ***************************************************************************/
 
+/* Status page - warning text (i.e. low heap) */
+#StatusPage .textWarn {
+    color: var(--alert-bg-color);
+    font-weight: bold;
+}
 
 #fwHistoryPanel {
     padding-top: 100px;

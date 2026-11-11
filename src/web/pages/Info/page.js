@@ -390,15 +390,19 @@ class CInfoPage extends CPageHandler {
         let fMaxDefaultHourly = pApp.Config.getData("gascounter.maxRateHourly",this.fDefaultMaxRateHourly); 
         let fMaxDefaultDaily  = pApp.Config.getData("gascounter.maxRateDaily",this.fDefaultMaxRateDaily);
 
+        // The counter values are in the "gascounter" section of the status
+        let oGas = (oStatus && Utils.isObj(oStatus.gascounter)) ? oStatus.gascounter : {};
+
         // Calculate the maximum rates for the charts...
-        let fMaxRateHourly = this.calcMaxRate(oStatus.m3hCurrent,oStatus.m3hLastHour,fMaxDefaultHourly);
-        let fMaxRateDaily  = this.calcMaxRate(oStatus.m3hToday,oStatus.chartPrevday,fMaxDefaultDaily);
+        // (hourly charts share one scale, daily charts share one scale)
+        let fMaxRateHourly = this.calcMaxRate(oGas.m3hCurrent,oGas.m3hLastHour,fMaxDefaultHourly);
+        let fMaxRateDaily  = this.calcMaxRate(oGas.m3hToday,oGas.m3hPrevday,fMaxDefaultDaily);
 
         // Now render the charts...
-        this.oCC.render(oStatus.m3hCurrent,     fMaxRateHourly);
-        this.oCL.render(oStatus.m3hLastHour,    fMaxRateHourly);
-        this.oCT.render(oStatus.m3hToday,       fMaxRateDaily);
-        this.oCY.render(oStatus.m3hPrevday,     fMaxDefaultDaily);
+        this.oCC.render(oGas.m3hCurrent,     fMaxRateHourly);
+        this.oCL.render(oGas.m3hLastHour,    fMaxRateHourly);
+        this.oCT.render(oGas.m3hToday,       fMaxRateDaily);
+        this.oCY.render(oGas.m3hPrevday,     fMaxRateDaily);
         return(oStatus);
     }
 }

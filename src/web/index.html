@@ -22,9 +22,13 @@
     Include the runtime stylesheets,
     and the application specific one
    -->
+  <!--
+    Note: the build (scripts/_compilePages.js) embeds the local stylesheets and scripts
+    into this page - the start page is one single request (small devices / Safari).
+  -->
   <link rel="stylesheet" href="css/_runtime.css"> <!-- basic runtime -->
-  <link rel="stylesheet" href="css/_pages.css">   <!-- pages stylesheets -->
-  <link rel="stylesheet" href="css/app.css">      <!-- app specific stylesheets -->
+  <link rel="stylesheet" href="css/_pages.css"> <!-- pages stylesheets -->
+  <link rel="stylesheet" href="css/app.css"> <!-- app specific stylesheets -->
 
   <!--
     Javascript... 

@@ -1,5 +1,14 @@
 {
     "gasCounter": {
-        
+        "meterReading": {
+            "legend": "Zählerstand",
+            "desc": "Aktuellen Stand der Gasuhr eingeben. Er wird mit jedem Impuls weitergezählt und dauerhaft gespeichert.",
+            "current": "Aktueller Zählerstand",
+            "label": "Neuer Zählerstand (m³)",
+            "info": "Stand der Gasuhr in Kubikmetern (z.B. 12345.678)",
+            "btn": "Zählerstand setzen",
+            "confirm": "Zählerstand setzen auf",
+            "invalid": "Bitte einen gültigen Zählerstand (>= 0) eingeben."
+        }
     }
 }

@@ -62,4 +62,39 @@
     </div>
 
     <div class="row form-group" data-element-type="save-btn-row"></div>
+
+    <!-- Meter reading of the gas meter (counted up with every tick, stored persistent) -->
+    <div data-auth="1">
+        <hr/>
+        <legend data-i18n="gasCounter.meterReading.legend"></legend>
+        <div class="pageDesc" data-i18n="gasCounter.meterReading.desc"></div>
+
+        <div class="row form-group">
+            <label class="$(col-label-class)" data-i18n="gasCounter.meterReading.current"></label>
+            <span class="$(col-input-class)">
+                <span id="actMeterReading">-</span> m³
+            </span>
+        </div>
+
+        <div class="row form-group">
+            <label class="$(col-label-class) info-icon" data-i18n="@title:gasCounter.meterReading.info">
+                <span data-i18n="gasCounter.meterReading.label"></span>
+                <icon data-icon="Info"></icon>
+            </label>
+            <span class="$(col-input-class)">
+                <input  id="newMeterReading"
+                        class="form-control input-sm"
+                        type="number"
+                        step="0.001"
+                        min="0"
+                        max="99999999">
+            </span>
+        </div>
+
+        <div class="row form-group">
+            <div>
+                <button id="setMeterReading" class="btn btn-primary btn-sm pull-right" data-i18n="gasCounter.meterReading.btn"></button>
+            </div>
+        </div>
+    </div>
 </div>

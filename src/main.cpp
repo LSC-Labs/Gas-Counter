@@ -84,13 +84,15 @@ void setup() {
   Appl.printDiag();
   Appl.Log.logInfo(F("Initializing services..."));
  
-  // Initialize and start the WiFi
-  oWiFiController.startWiFi(bUseConfigData);
-  
-  // Prepare and start the Web Server
-  registerWebRoutes(oWebServer);  
+  // Register the web routes BEFORE the WiFi is started: the server is started on
+  // MSG_WIFI_CONNECTED - requests (i.e. network scanners) must not hit a server,
+  // whose routes are still being registered.
+  registerWebRoutes(oWebServer);
   oWebServer.addHandler(&oWebSocket);
-  oWebServer.begin();
+
+  // Initialize and start the WiFi and the web server
+  oWiFiController.startWiFi(bUseConfigData);
+  oWebServer.begin();         // ignored, if already started by MSG_WIFI_CONNECTED
 
   if(oWiFiController.Status.isInAccessPointMode) {
     delay(500);

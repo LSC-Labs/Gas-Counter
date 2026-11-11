@@ -31,6 +31,10 @@ class CAppControl : public IMsgEventReceiver
 {
     protected:
         std::vector<GasCounterTickMsg*> tGasCounterTicks;
+        bool m_bMqttConnected = false;      // State nur bei bestehender Verbindung veröffentlichen
+        bool m_bPublishStateRequested = false;
+        unsigned long m_ulLastStatePublish = 0;
+        void publishState(const char *pszType, GasCounterTickMsg *pTickMsg = nullptr);
 
 
     public:

@@ -9,9 +9,9 @@
 #define PROG_HOMEPAGE      "https://github.com/lsc-labs/Gas-Counter#readme"
 
 #define PROG_VERSION_MAJOR 0
-#define PROG_VERSION_MINOR 4
-#define PROG_VERSION_PATCH 1
-#define PROG_VERSION_BUILD 5
-#define PROG_VERSION       "0.4.1"
-#define PROG_VERSION_SHORT "0.4"
-#define PROG_VERSION_LONG  "0.4.1.5"
+#define PROG_VERSION_MINOR 5
+#define PROG_VERSION_PATCH 0
+#define PROG_VERSION_BUILD 1
+#define PROG_VERSION       "0.5.0"
+#define PROG_VERSION_SHORT "0.5"
+#define PROG_VERSION_LONG  "0.5.0.1"

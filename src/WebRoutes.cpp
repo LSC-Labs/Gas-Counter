@@ -1,176 +1,80 @@
 /**
  * WebRoutes.cpp
- * 
+ *
  * Is part of PLibESPV1 - CWebServer
- * 
+ *
  * Insert your application specific static pages here, also
  * as the defaults and the registration/handling of API's
- * 
- * 
+ *
+ * Notes:
+ * - All handlers run in the async context (ESP32: AsyncTCP task,
+ *   ESP8266: SYS context). Never build status/config data here -
+ *   use the snapshots of Appl (getStatusSnapshot(), getSystemStatusSnapshot()).
+ * - The embedded pages are delivered gzipped with an ETag. The browser
+ *   revalidates them (Cache-Control: no-cache) and gets a "304 Not Modified"
+ *   as long as the firmware (this file) was not rebuilt with new pages.
  */
 #ifndef DEBUG_LSC_WEBROUTES
     #undef DEBUGINFOS
 #endif
 
+#include <WebRoutes.h>
 #include <WebServer.h>
-#include <JsonNode.h>
+#include <Appl.h>
+// Only the files the browser really requests are embedded. All stylesheets and
+// scripts (css/*.css, js/*.js) are inlined into index.html at build time
+// (scripts/_compilePages.js - inlineIndexAssets), so they need no own route.
 #include <web/index.html.gz.h>
-#include <web/app.css.gz.h>
-#include <web/index.js.gz.h>
-#include <web/settings.js.gz.h>
-#include <web/_runtime.css.gz.h>
-#include <web/_runtime.js.gz.h>
 #include <web/_pages.html.gz.h>
-#include <web/_pages.js.gz.h>
-#include <web/_pages.css.gz.h>
 #include <web/de.json.gz.h>
 #include <web/en.json.gz.h>
 
+// Changes with every build of this file, i.e. whenever an included page changes.
+#ifndef WEBROUTES_ETAG
+    #define WEBROUTES_ETAG "\"" __DATE__ " " __TIME__ "\""
+#endif
 
-
-void sendGzipResponse(AsyncWebServerRequest *pRequest, AsyncWebServerResponse *pResponse) {
-    DEBUG_FUNC_START();
-    DEBUG_INFOS("WEB: sending %s",pRequest->url().c_str());
-    pResponse->addHeader("Content-Encoding", "gzip");
-    pRequest->send(pResponse);
-    DEBUG_FUNC_END();
+/**
+ * @brief Registers a GET route delivering an embedded (PROGMEM) gzip file.
+ *
+ * Sends "304 Not Modified" if the browser already has the current version
+ * (If-None-Match == ETag), otherwise the gzipped content.
+ */
+static void addGzipRoute(CWebServer &oWebServer, const char *pszUri, const char *pszContentType,
+                         const uint8_t *pData, size_t nLen) {
+    oWebServer.on(pszUri, HTTP_GET, [pszContentType, pData, nLen](AsyncWebServerRequest *pRequest) {
+        DEBUG_INFOS("WEB: sending %s",pRequest->url().c_str());
+        const AsyncWebHeader *pIfNoneMatch = pRequest->getHeader("If-None-Match");
+        AsyncWebServerResponse *pResponse;
+        if(pIfNoneMatch && pIfNoneMatch->value() == WEBROUTES_ETAG) {
+            pResponse = pRequest->beginResponse(304);
+        } else {
+            pResponse = pRequest->beginResponse(200, pszContentType, pData, nLen);
+            pResponse->addHeader("Content-Encoding", "gzip");
+        }
+        pResponse->addHeader("ETag", WEBROUTES_ETAG);
+        pResponse->addHeader("Cache-Control", "no-cache");    // always revalidate (new pages after OTA)
+        pRequest->send(pResponse);
+    });
 }
-
-void sendJsonResponse(JsonNode &oDoc, AsyncWebServerRequest *pRequest) {
-    DEBUG_FUNC_START();
-    DEBUG_INFOS("WEB: %s",pRequest->url().c_str());
-    DEBUG_JSON_OBJ(oDoc);
-    AsyncResponseStream *pStream =  pRequest->beginResponseStream(F("application/json"));
-    pStream->write(oDoc.getAsJsonText());
-    pRequest->send(pStream);
-    DEBUG_FUNC_END();
-}
-
-
 
 void registerWebRoutes(CWebServer &oWebServer) {
     oWebServer.registerDefaults();
     oWebServer.registerFileAccess();
-    
-    oWebServer.on("/index.html", HTTP_GET, [](AsyncWebServerRequest *request) {
-        sendGzipResponse(request,
-                         request->beginResponse_P(
-                            200,
-                            F("text/html"),
-                            index_html_gz, 
-                            index_html_gz_len)
-                        );
-	});
 
-    oWebServer.on("/_pages.html", HTTP_GET, [](AsyncWebServerRequest *request) {
-        sendGzipResponse(request,
-                         request->beginResponse_P(
-                            200,
-                            F("text/html"),
-                            _pages_html_gz, 
-                            _pages_html_gz_len)
-                        );
-	});
+    // Embedded web pages
+    addGzipRoute(oWebServer, "/index.html",       "text/html",        index_html_gz,    index_html_gz_len);
+    addGzipRoute(oWebServer, "/_pages.html",      "text/html",        _pages_html_gz,   _pages_html_gz_len);
+    addGzipRoute(oWebServer, "/i18n/de.json",     "application/json", de_json_gz,       de_json_gz_len);
+    addGzipRoute(oWebServer, "/i18n/en.json",     "application/json", en_json_gz,       en_json_gz_len);
 
-    oWebServer.on("/css/_runtime.css", HTTP_GET, [](AsyncWebServerRequest *request) {
-		sendGzipResponse(request,
-                         request->beginResponse_P(
-                            200,
-                            F("text/css"),
-                            _runtime_css_gz, 
-                            _runtime_css_gz_len)
-                        );
-	});
+    // API - snapshots built in the loop (safe copies for the async context)
+    oWebServer.on("/apiV1/status", HTTP_GET, [](AsyncWebServerRequest *pRequest) {
+        pRequest->send(200, "application/json", Appl.getStatusSnapshot());
+    });
 
-     oWebServer.on("/css/_pages.css", HTTP_GET, [](AsyncWebServerRequest *request) {
-		sendGzipResponse(request,
-                         request->beginResponse_P(
-                            200,
-                            F("text/css"),
-                            _pages_css_gz, 
-                            _pages_css_gz_len)
-                        );
-	});
-
-    oWebServer.on("/css/app.css", HTTP_GET, [](AsyncWebServerRequest *request) {
-		sendGzipResponse(request,
-                         request->beginResponse_P(
-                            200,
-                            F("text/css"),
-                            app_css_gz, 
-                            app_css_gz_len)
-                        );
-	});
-
-    oWebServer.on("/js/settings.js", HTTP_GET, [](AsyncWebServerRequest *request) {
-        sendGzipResponse(request,
-                         request->beginResponse_P(
-                            200,
-                            F("text/javascript"),
-                            settings_js_gz, 
-                            settings_js_gz_len)
-                        );
-	});
-
-    oWebServer.on("/js/index.js", HTTP_GET, [](AsyncWebServerRequest *request) {
-        sendGzipResponse(request,
-                         request->beginResponse_P(
-                            200,
-                            F("text/javascript"),
-                            index_js_gz, 
-                            index_js_gz_len)
-                        );
-	});
-
-
-	oWebServer.on("/js/_runtime.js", HTTP_GET, [](AsyncWebServerRequest *request) {
-        sendGzipResponse(request,
-                         request->beginResponse_P(
-                            200,
-                            F("text/javascript"),
-                            _runtime_js_gz, 
-                            _runtime_js_gz_len)
-                        );
-	});
-
-	oWebServer.on("/js/_pages.js", HTTP_GET, [](AsyncWebServerRequest *request) {
-        sendGzipResponse(request,
-                         request->beginResponse_P(
-                            200,
-                            F("text/javascript"),
-                            _pages_js_gz, 
-                            _pages_js_gz_len)
-                        );
-	});
-
-    oWebServer.on("/i18n/de.json", HTTP_GET, [](AsyncWebServerRequest *request) {
-        sendGzipResponse(request,
-                         request->beginResponse_P(
-                            200,
-                            F("application/json"),
-                            de_json_gz, 
-                            de_json_gz_len)
-                        );
-	});
-    oWebServer.on("/i18n/en.json", HTTP_GET, [](AsyncWebServerRequest *request) {
-        sendGzipResponse(request,
-                         request->beginResponse_P(
-                            200,
-                            F("application/json"),
-                            en_json_gz, 
-                            en_json_gz_len)
-                        );
-	});
-    
-    oWebServer.on("/apiV1/status", HTTP_GET, [](AsyncWebServerRequest *request) {
-        CJsonNode oStatus;
-        Appl.writeStatusTo(oStatus,STATUS_LEVEL_INFO);
-        sendJsonResponse(oStatus,request);
-	});
-    
-    oWebServer.on("/apiV1/sysstatus", HTTP_GET, [](AsyncWebServerRequest *request) {
-        CJsonNode oStatus ;
-        Appl.writeSystemStatusTo(oStatus);
-        sendJsonResponse(oStatus,request);
-	});
+    oWebServer.on("/apiV1/sysstatus", HTTP_GET, [](AsyncWebServerRequest *pRequest) {
+        // Last snapshot - a fresh one is built by the next loop (file system access)
+        pRequest->send(200, "application/json", Appl.getSystemStatusSnapshot());
+    });
 }

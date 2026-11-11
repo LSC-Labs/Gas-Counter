@@ -1,19 +1,29 @@
 {
     "gasCounter": {
         "legend": "Gas Counter Settings",
-        "title" : "Set the gas counter values and thresholds",
+        "title": "Set the gas counter values and thresholds",
         "m3PerTick": {
             "label": "m³ per tick",
-            "info" : "Volume in cubic meters per tick of the gas counter"
+            "info": "Volume in cubic meters per tick of the gas counter"
         },
         "maxRateInfo": "Expected gas consumption rates. Used to scale the charts appropriately.",
         "maxRateHourly": {
             "label": "max m³ per Hour",
-            "info" : "Expected maximum volume in cubic meters in one hour."
+            "info": "Expected maximum volume in cubic meters in one hour."
         },
         "maxRateDaily": {
             "label": "max m³ (day)",
-            "info" : "Expected volume in cubic meters per day."
+            "info": "Expected volume in cubic meters per day."
+        },
+        "meterReading": {
+            "legend": "Meter reading",
+            "desc": "Enter the current reading of your gas meter. It is counted up with every tick and stored permanently.",
+            "current": "Current meter reading",
+            "label": "New meter reading (m³)",
+            "info": "Reading of the gas meter in cubic meters (e.g. 12345.678)",
+            "btn": "Set meter reading",
+            "confirm": "Set meter reading to",
+            "invalid": "Please enter a valid meter reading (>= 0)."
         }
     }
 }

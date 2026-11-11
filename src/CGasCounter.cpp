@@ -9,6 +9,13 @@
 #include <AppConfig.h>
 #include <interrupts.h>
 #include <math.h>
+#include <stdlib.h>
+#include <WebSocket.h>
+#include <AccessToken.h>
+#include <Security.h>
+
+// Obergrenze für einen plausiblen Zählerstand (m³).
+#define GASCOUNTER_MAX_METER_READING 99999999.0
 
 #pragma region Constructor, Desctrutor and Setup
 
@@ -77,10 +84,15 @@ void CGasCounter::dispatch() {
 
     Status.ulLastCountInMillis = nLastTick;
     Status.ulPeriodTimeMillis = nPeriod;
+    const time_t tNow = time(nullptr);
+    if (tNow >= 946684800) Status.tLastTickTime = tNow;   // nur mit synchronisierter Uhr
+    // Impulsvolumen auf 6 Nachkommastellen runden, damit z.B. 0.01f exakt als 0.01 summiert wird.
+    const double dUnitPerTick = round(static_cast<double>(Config.fUnitPerTick) * 1e6) / 1e6;
     for (uint32_t i = 0; i < nTicks; ++i) {
         ++Status.ulTotalTickCounter;
         Status.fTotalConsumedValue += Config.fUnitPerTick;
         Status.fTodayConsumedValue += Config.fUnitPerTick;
+        Status.dMeterReading += dUnitPerTick;
         Status.tfMinuteValues[Status.nCurrentMinuteIndex] += Config.fUnitPerTick;
         // Der synchrone Bus und seine Empfänger dürfen jetzt Speicher allozieren.
         Appl.MsgBus.sendEvent(this, MSG_GASCOUNTER_TICK, nullptr, m_nPin);
@@ -159,14 +171,68 @@ void CGasCounter::writeStatusTo(JsonNode &oStatusNode, int nLevel)
     oStatusNode["m3hPrevday"]      = Status.fYesterdayConsumedValue;
     oStatusNode["m3hLastHour"]     = getConsumedCubicMetersInLastHour();
     oStatusNode["m3hCurrent"]      = getCurrentConsumedCubicMeters();
+    // Zählerstand als JSON-Zahl mit drei Nachkommastellen (float würde Stellen verlieren).
+    // Erst nach dem ersten Setzen melden: ein Sprung von 0 auf den echten Stand würde
+    // in Home Assistant (total_increasing) sonst als Verbrauch verbucht.
+    if (Status.bMeterReadingValid) {
+        char szReading[32];
+        snprintf(szReading, sizeof(szReading), "%.3f", Status.dMeterReading);
+        JsonNode *pReading = oStatusNode.getElement("MeterReading", true);
+        if (pReading && !pReading->parse(szReading)) pReading->setValue(static_cast<float>(Status.dMeterReading));
+    }
+    // Zeitpunkt des letzten Impulses (ISO 8601, UTC) - nur wenn bekannt.
+    if (Status.tLastTickTime >= 946684800) {
+        struct tm tmUtc = {};
+        char szTime[32];
+        if (gmtime_r(&Status.tLastTickTime, &tmUtc) && strftime(szTime, sizeof(szTime), "%Y-%m-%dT%H:%M:%SZ", &tmUtc) > 0)
+            oStatusNode["LastTick"] = szTime;
+    }
 }
 
 int CGasCounter::receiveEvent(const void * pSender, int nMsg, const void * pMessage, int nMsgInfo) {
     if (nMsg == MSG_APPL_SHUTDOWN) {
         dispatch();
         saveState(true);
+    } else if (nMsg == MSG_WEBSOCKET_DATA_RECEIVED && nMsgInfo == 1 && pMessage) {
+        // nMsgInfo == 1: gültiges JSON mit einem von CWebSocket nicht behandelten Kommando.
+        handleWebSocketCommand(pMessage);
     }
     return EVENT_MSG_RESULT_OK ;
+}
+
+/**
+ * @brief Verarbeitet das Kommando "setgasmeter" (Zählerstand setzen) im Hauptprogramm.
+ * Erwartet {"command":"setgasmeter","token":"...","payload":{"meterReading":12345.678}}.
+ * Nur mit gültigem Anmelde-Token, da der Zählerstand sonst von jedem verändert werden könnte.
+ */
+void CGasCounter::handleWebSocketCommand(const void *pMessage) {
+    const CWebSocketMessage *pWSMessage = static_cast<const CWebSocketMessage *>(pMessage);
+    if (!pWSMessage->pSerializedMessage) return;
+    JsonNode oRequest;
+    if (!oRequest.parse(pWSMessage->pSerializedMessage)) return;
+    String strCommand = oRequest.getValue("command");
+    if (!strCommand.equalsIgnoreCase(F("setgasmeter"))) return;
+
+    String strToken = oRequest.getValue("token");
+    String strRemoteIP = pWSMessage->RemoteIP.toString();
+    CAccessToken oToken(strToken.c_str());
+    if (strToken.length() <= 10 || !oToken.isAuthValid(strRemoteIP.c_str(), APPL_SECURITY_TOKEN_KEY)) {
+        Appl.Log.logError(F("GasCounter: setgasmeter - access denied"));
+        return;
+    }
+    JsonNode *pPayload = oRequest.getObject("payload");
+    JsonNode *pValue = pPayload ? pPayload->getElement("meterReading") : nullptr;
+    const char *pszValue = pValue ? pValue->getValue() : nullptr;
+    if (!pszValue || !*pszValue) return;
+    char *pEnd = nullptr;
+    const double dValue = strtod(pszValue, &pEnd);
+    if (pEnd == pszValue || *pEnd || !setMeterReading(dValue)) {
+        Appl.Log.logError(F("GasCounter: setgasmeter - invalid value"));
+        return;
+    }
+    char szInfo[64];
+    snprintf(szInfo, sizeof(szInfo), "GasCounter: meter reading set to %.3f m3", Status.dMeterReading);
+    Appl.Log.logInfo(szInfo);
 }
 
 /**
@@ -175,22 +241,31 @@ int CGasCounter::receiveEvent(const void * pSender, int nMsg, const void * pMess
  */
 void CGasCounter::insertComponentDiscovery(const char * pszComponentName,JsonNode & oComponents, CMQTTController *pController) {
     // State topic and availability are supplied by the device discovery document.
+    // Home Assistant rules: device_class "gas" allows only state_class "total"/"total_increasing"
+    // and the units L, m³, ft³, CCF, MCF. Rolling or config values must not use "gas".
     struct SensorDiscovery {
-        const char *pszField;
+        const char *pszField;           // field in the "gascounter" status object
+        const char *pszObjectID;        // suffix of the default entity id
         const char *pszName;
         const char *pszDeviceClass;
         const char *pszUnit;
         const char *pszStateClass;
+        const char *pszIcon;
+        int         nPrecision;         // suggested_display_precision, < 0 = not set
+        bool        bDiagnostic;        // entity_category "diagnostic"
     };
     const SensorDiscovery tSensors[] = {
-        {"TickCounter", "Gas Impulse", nullptr, "imp", "total_increasing"},
-        {"m3hPerTick", "Gas pro Impuls", "gas", "m³", nullptr},
-//        {"m3hTotal", "Gasverbrauch gesamt", "gas", "m³", "total_increasing"},
-//        {"m3hToday", "Gasverbrauch heute", "gas", "m³", "total_increasing"},
-        // Previous-day and rolling-hour values are not increasing counters.
-//        {"m3hPrevday", "Gasverbrauch gestern", "gas", "m³", nullptr},
-//        {"m3hLastHour", "Gasverbrauch letzte Stunde", nullptr, "m³", "measurement"},
-        {"m3hCurrent", "Gasdurchfluss", "volume_flow_rate", "m³/h", "measurement"}
+        // Meter reading of the gas meter - the sensor for the HA energy dashboard
+        {"MeterReading", "meter_reading",   "Zählerstand",             "gas",              "m³",    "total_increasing", "mdi:meter-gas",      3, false},
+        {"m3hCurrent",   "flow",            "Durchfluss",              "volume_flow_rate", "m³/h",  "measurement",      "mdi:gauge",          3, false},
+        {"m3hLastHour",  "last_hour",       "Verbrauch letzte Stunde", nullptr,            "m³",    "measurement",      "mdi:fire",           2, false},
+        // Reset at local midnight by the device - HA detects the decrease as a new cycle
+        {"m3hToday",     "today",           "Verbrauch heute",         "gas",              "m³",    "total_increasing", "mdi:fire",           2, false},
+        {"m3hPrevday",   "yesterday",       "Verbrauch gestern",       "gas",              "m³",    nullptr,            "mdi:fire",           2, false},
+        {"m3hTotal",     "total",           "Verbrauch gesamt",        "gas",              "m³",    "total_increasing", "mdi:fire",           2, false},
+        {"LastTick",     "last_tick",       "Letzter Impuls",          "timestamp",        nullptr, nullptr,            "mdi:clock-outline", -1, false},
+        {"TickCounter",  "ticks",           "Impulse",                 nullptr,            "imp",   "total_increasing", "mdi:counter",        0, true},
+        {"m3hPerTick",   "volume_per_tick", "Volumen pro Impuls",      nullptr,            "m³",    nullptr,            "mdi:water-outline",  3, true},
     };
 
     for (const auto &oSensor : tSensors) {
@@ -200,27 +275,31 @@ void CGasCounter::insertComponentDiscovery(const char * pszComponentName,JsonNod
         String strUniqueID = Appl.getDeviceID();
         strUniqueID += "-";
         strUniqueID += strComponentID;
+        // Stable entity ids (sensor.gascounter_meter_reading, ...) - used by the HA templates/dashboard
+        String strEntityID = "sensor.";
+        strEntityID += pszComponentName;
+        strEntityID += "_";
+        strEntityID += oSensor.pszObjectID;
 
-        // Keep the original precision, especially for small configured tick volumes.
+        // A missing value (i.e. no last tick yet) renders "None" => state "unknown".
         String strValueTemplate = "{{ value_json.";
         strValueTemplate += pszComponentName;
         strValueTemplate += ".";
         strValueTemplate += oSensor.pszField;
-        strValueTemplate += " }}";
+        strValueTemplate += " | default(None) }}";
 
         JsonNode *pSensor = oComponents.getObject(strComponentID.c_str(), true);
         pSensor->setValue("p", "sensor");
         pSensor->setValue("name", oSensor.pszName);
         pSensor->setValue("unique_id", strUniqueID.c_str());
+        pSensor->setValue("default_entity_id", strEntityID.c_str());
         pSensor->setValue("value_template", strValueTemplate.c_str());
-        pSensor->setValue("unit_of_measurement", oSensor.pszUnit);
-        pSensor->setValue("icon", "mdi:fire");
-        if (oSensor.pszDeviceClass != nullptr) {
-            pSensor->setValue("device_class", oSensor.pszDeviceClass);
-        }
-        if (oSensor.pszStateClass != nullptr) {
-            pSensor->setValue("state_class", oSensor.pszStateClass);
-        }
+        pSensor->setValue("icon", oSensor.pszIcon);
+        if (oSensor.pszUnit)         pSensor->setValue("unit_of_measurement", oSensor.pszUnit);
+        if (oSensor.pszDeviceClass)  pSensor->setValue("device_class", oSensor.pszDeviceClass);
+        if (oSensor.pszStateClass)   pSensor->setValue("state_class", oSensor.pszStateClass);
+        if (oSensor.nPrecision >= 0) pSensor->setValue("suggested_display_precision", oSensor.nPrecision);
+        if (oSensor.bDiagnostic)     pSensor->setValue("entity_category", "diagnostic");
     }
 }
 
@@ -343,6 +422,23 @@ float CGasCounter::getCurrentConsumedCubicMeters()
 unsigned long CGasCounter::getCurrentGasCounter()
 {
     return(Status.ulTotalTickCounter);
+}
+
+/**
+ * @brief Übernimmt den abgelesenen Zählerstand der Gasuhr (m³) und speichert sofort.
+ * Noch ausstehende Impulse werden vorher verbucht, da sie in der Ablesung enthalten sind.
+ * @return false bei ungültigem Wert (negativ, nicht endlich oder unplausibel groß).
+ */
+bool CGasCounter::setMeterReading(double dValue)
+{
+    if (!isfinite(dValue) || dValue < 0.0 || dValue > GASCOUNTER_MAX_METER_READING) return false;
+    dispatch();
+    // Auf 1 Liter runden, um Eingabeartefakte (z.B. 12345.6789999) zu vermeiden.
+    Status.dMeterReading = round(dValue * 1000.0) / 1000.0;
+    Status.bMeterReadingValid = true;
+    saveState(true);
+    Appl.MsgBus.sendEvent(this, MSG_GASCOUNTER_READING_SET, nullptr, 0);
+    return true;
 }
 
 #pragma endregion

@@ -1,0 +1,205 @@
+# =============================================================================
+#  Gas Counter - Home Assistant Package
+# =============================================================================
+#  Ergänzt die per MQTT-Discovery angelegten Sensoren des Gas Counters um
+#  - Umrechnung m³ -> kWh (Brennwert x Zustandszahl, siehe Gasrechnung)
+#  - Preise und Kosten
+#  - Verbrauchszähler für Tag / Woche / Monat / Jahr
+#  - Status "Gas fließt" und eine Warnung bei Dauerverbrauch
+#
+#  Installation: siehe homeassistant/README.md
+#  Erwartete Entitäten (von der Firmware per Discovery angelegt):
+#    sensor.gascounter_meter_reading   Zählerstand (m³)
+#    sensor.gascounter_flow            Durchfluss (m³/h)
+#    sensor.gascounter_today           Verbrauch heute (m³)
+#    sensor.gascounter_yesterday       Verbrauch gestern (m³)
+#    sensor.gascounter_last_hour       Verbrauch letzte Stunde (m³)
+#    sensor.gascounter_total           Verbrauch gesamt seit Inbetriebnahme (m³)
+#    sensor.gascounter_last_tick       Zeitpunkt letzter Impuls
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+#  Werte aus der Gasrechnung - einmalig in HA einstellen
+#  (Einstellungen > Geräte & Dienste > Helfer, oder direkt auf dem Dashboard)
+# -----------------------------------------------------------------------------
+input_number:
+  gas_brennwert:
+    name: Gas Brennwert
+    icon: mdi:fire-circle
+    unit_of_measurement: kWh/m³
+    min: 8
+    max: 13
+    step: 0.001
+    mode: box
+  gas_zustandszahl:
+    name: Gas Zustandszahl
+    icon: mdi:thermometer-lines
+    min: 0.8
+    max: 1.1
+    step: 0.0001
+    mode: box
+  gas_arbeitspreis:
+    name: Gas Arbeitspreis
+    icon: mdi:currency-eur
+    unit_of_measurement: ct/kWh
+    min: 0
+    max: 50
+    step: 0.01
+    mode: box
+  gas_grundpreis:
+    name: Gas Grundpreis
+    icon: mdi:currency-eur
+    unit_of_measurement: EUR/Monat
+    min: 0
+    max: 100
+    step: 0.01
+    mode: box
+
+# -----------------------------------------------------------------------------
+#  Verbrauchszähler auf Basis des Zählerstands (m³)
+#  -> sensor.gas_verbrauch_tag / _woche / _monat / _jahr
+# -----------------------------------------------------------------------------
+utility_meter:
+  gas_verbrauch_tag:
+    name: Gas Verbrauch Tag
+    source: sensor.gascounter_meter_reading
+    cycle: daily
+    periodically_resetting: false
+  gas_verbrauch_woche:
+    name: Gas Verbrauch Woche
+    source: sensor.gascounter_meter_reading
+    cycle: weekly
+    periodically_resetting: false
+  gas_verbrauch_monat:
+    name: Gas Verbrauch Monat
+    source: sensor.gascounter_meter_reading
+    cycle: monthly
+    periodically_resetting: false
+  gas_verbrauch_jahr:
+    name: Gas Verbrauch Jahr
+    source: sensor.gascounter_meter_reading
+    cycle: yearly
+    periodically_resetting: false
+
+template:
+  - sensor:
+      # Umrechnungsfaktor m³ -> kWh (Brennwert x Zustandszahl)
+      - name: Gas Umrechnungsfaktor
+        unique_id: gascounter_kwh_per_m3
+        icon: mdi:swap-horizontal
+        unit_of_measurement: kWh/m³
+        availability: >-
+          {{ has_value('input_number.gas_brennwert') and has_value('input_number.gas_zustandszahl') }}
+        state: >-
+          {{ (states('input_number.gas_brennwert') | float(0)
+              * states('input_number.gas_zustandszahl') | float(0)) | round(4) }}
+
+      # Zählerstand als Energie - alternative Quelle für das Energie-Dashboard (kWh)
+      - name: Gas Energie gesamt
+        unique_id: gascounter_energy_total
+        device_class: energy
+        state_class: total_increasing
+        unit_of_measurement: kWh
+        icon: mdi:fire
+        availability: >-
+          {{ has_value('sensor.gascounter_meter_reading') and has_value('sensor.gas_umrechnungsfaktor') }}
+        state: >-
+          {{ (states('sensor.gascounter_meter_reading') | float(0)
+              * states('sensor.gas_umrechnungsfaktor') | float(0)) | round(2) }}
+
+      - name: Gas Energie heute
+        unique_id: gascounter_energy_today
+        device_class: energy
+        state_class: total_increasing
+        unit_of_measurement: kWh
+        icon: mdi:fire
+        availability: >-
+          {{ has_value('sensor.gascounter_today') and has_value('sensor.gas_umrechnungsfaktor') }}
+        state: >-
+          {{ (states('sensor.gascounter_today') | float(0)
+              * states('sensor.gas_umrechnungsfaktor') | float(0)) | round(2) }}
+
+      # Preis pro kWh (Energie-Dashboard, wenn "Gas Energie gesamt" als Quelle genutzt wird)
+      - name: Gas Preis pro kWh
+        unique_id: gascounter_price_kwh
+        unit_of_measurement: EUR/kWh
+        icon: mdi:currency-eur
+        availability: "{{ has_value('input_number.gas_arbeitspreis') }}"
+        state: "{{ (states('input_number.gas_arbeitspreis') | float(0) / 100) | round(5) }}"
+
+      # Preis pro m³ (Energie-Dashboard, wenn der Zählerstand in m³ als Quelle genutzt wird)
+      - name: Gas Preis pro m³
+        unique_id: gascounter_price_m3
+        unit_of_measurement: EUR/m³
+        icon: mdi:currency-eur
+        availability: >-
+          {{ has_value('input_number.gas_arbeitspreis') and has_value('sensor.gas_umrechnungsfaktor') }}
+        state: >-
+          {{ (states('input_number.gas_arbeitspreis') | float(0) / 100
+              * states('sensor.gas_umrechnungsfaktor') | float(0)) | round(5) }}
+
+      - name: Gas Kosten heute
+        unique_id: gascounter_cost_today
+        device_class: monetary
+        unit_of_measurement: EUR
+        icon: mdi:cash
+        availability: >-
+          {{ has_value('sensor.gascounter_today') and has_value('sensor.gas_preis_pro_m3') }}
+        state: >-
+          {{ (states('sensor.gascounter_today') | float(0)
+              * states('sensor.gas_preis_pro_m3') | float(0)) | round(2) }}
+
+      - name: Gas Kosten gestern
+        unique_id: gascounter_cost_yesterday
+        device_class: monetary
+        unit_of_measurement: EUR
+        icon: mdi:cash
+        availability: >-
+          {{ has_value('sensor.gascounter_yesterday') and has_value('sensor.gas_preis_pro_m3') }}
+        state: >-
+          {{ (states('sensor.gascounter_yesterday') | float(0)
+              * states('sensor.gas_preis_pro_m3') | float(0)) | round(2) }}
+
+      # Arbeitspreis des laufenden Monats + voller monatlicher Grundpreis
+      - name: Gas Kosten Monat
+        unique_id: gascounter_cost_month
+        device_class: monetary
+        unit_of_measurement: EUR
+        icon: mdi:cash-multiple
+        availability: >-
+          {{ has_value('sensor.gas_verbrauch_monat') and has_value('sensor.gas_preis_pro_m3') }}
+        state: >-
+          {{ (states('sensor.gas_verbrauch_monat') | float(0)
+              * states('sensor.gas_preis_pro_m3') | float(0)
+              + states('input_number.gas_grundpreis') | float(0)) | round(2) }}
+
+      # Durchfluss als Leistung (kW) - anschaulicher als m³/h
+      - name: Gas Leistung
+        unique_id: gascounter_power
+        device_class: power
+        state_class: measurement
+        unit_of_measurement: kW
+        icon: mdi:flash
+        availability: >-
+          {{ has_value('sensor.gascounter_flow') and has_value('sensor.gas_umrechnungsfaktor') }}
+        state: >-
+          {{ (states('sensor.gascounter_flow') | float(0)
+              * states('sensor.gas_umrechnungsfaktor') | float(0)) | round(2) }}
+
+  - binary_sensor:
+      - name: Gas fließt
+        unique_id: gascounter_flowing
+        device_class: running
+        icon: mdi:fire
+        availability: "{{ has_value('sensor.gascounter_flow') }}"
+        state: "{{ states('sensor.gascounter_flow') | float(0) > 0 }}"
+
+      # Warnung: Gas fließt ununterbrochen länger als 4 Stunden (Leck / Defekt?)
+      - name: Gas Dauerverbrauch
+        unique_id: gascounter_continuous_flow
+        device_class: problem
+        icon: mdi:alert
+        availability: "{{ has_value('sensor.gascounter_flow') }}"
+        state: "{{ states('sensor.gascounter_flow') | float(0) > 0 }}"
+        delay_on:
+          hours: 4

@@ -18,7 +18,9 @@ struct GasCounterStatus {
     float tfMinuteValues[60] = {0.0};       // Verbrauch pro Minute, unabhängig von Kalenderzeit (m³)
     unsigned int nCurrentMinuteIndex = 0;   // Index des aktuellen Minutenintervalls (0 bis 59)
 
-    float fTotalCounter = 0.0;
+    time_t tLastTickTime = 0;          // Kalenderzeit (UTC) des letzten Impulses, 0 = unbekannt
+    double dMeterReading = 0.0;        // Zählerstand der Gasuhr in m³ (vom Benutzer gesetzt, je Impuls fortgeschrieben)
+    bool bMeterReadingValid = false;   // Zählerstand wurde mindestens einmal gesetzt
     float fTotalConsumedValue = 0.0;   // Total consumed value in cubic meters
     float fTodayConsumedValue = 0.0;   // Consumed value today in cubic meters
     float fYesterdayConsumedValue = 0.0; // Consumed value yesterday in cubic meters
@@ -48,6 +50,8 @@ class CGasCounter : CInputPinController, public IModule, public IHomeAssistantCo
         long m_lSavedDay = -1;
         float m_fSavedToday = 0;
         float m_fSavedYesterday = 0;
+        double m_dSavedMeterReading = 0;
+        void handleWebSocketCommand(const void *pMessage);
         void adjustDayCounters();
        
         void IRAM_ATTR interruptHandler();
@@ -80,6 +84,9 @@ class CGasCounter : CInputPinController, public IModule, public IHomeAssistantCo
         int receiveEvent(const void * pSender, int nMsg, const void * pMessage, int nMsgInfo) override;
 
         unsigned long getCurrentGasCounter();
+        // Setzt den Zählerstand der Gasuhr (m³) und speichert ihn sofort persistent.
+        bool setMeterReading(double dValue);
+        double getMeterReading() { return Status.dMeterReading; }
         float getConsumedCubicMetersInLastHour();
         float getCurrentConsumedCubicMeters();
 

@@ -94,7 +94,6 @@ bool CGasCounter::beginPersistence() {
         if (legacy.version != 1 || legacy.checksum != hashBytes(&legacy, offsetof(LegacyState, checksum)))
             return false;
         restored.ulTotalTickCounter = legacy.status.ticks;
-        restored.fTotalCounter = legacy.status.totalCounter;
         restored.fTotalConsumedValue = legacy.status.total;
         restored.fTodayConsumedValue = legacy.status.today;
         restored.fYesterdayConsumedValue = legacy.status.yesterday;
@@ -118,12 +117,14 @@ bool CGasCounter::beginPersistence() {
             !readNumber(document, "checksum", storedHash, 0, UINT32_MAX, true)) return false;
         const char *serialized = data->getAsJsonText();
         if (storedHash != hashBytes(serialized, strlen(serialized))) return false;
-        double ticks = 0, index = 0, date = -1, timestamp = 0;
+        double ticks = 0, index = 0, date = -1, timestamp = 0, lastTick = 0, readingValid = 0;
         if (!readNumber(*data, "tickCounter", ticks, 0, UINT32_MAX, true) || floor(ticks) != ticks ||
             !readNumber(*data, "minuteIndex", index, 0, 59) || floor(index) != index ||
             !readNumber(*data, "day", date, -1, INT32_MAX) || floor(date) != date ||
             !readNumber(*data, "savedAt", timestamp, 0, 253402300799.0) || floor(timestamp) != timestamp ||
-            !readVolume(*data, "totalCounter", restored.fTotalCounter) ||
+            !readNumber(*data, "meterReading", restored.dMeterReading, 0, 1e9) ||
+            !readNumber(*data, "lastTick", lastTick, 0, 253402300799.0) || floor(lastTick) != lastTick ||
+            !readNumber(*data, "meterReadingValid", readingValid, 0, 1) ||
             !readVolume(*data, "total", restored.fTotalConsumedValue, true) ||
             !readVolume(*data, "today", restored.fTodayConsumedValue) ||
             !readVolume(*data, "yesterday", restored.fYesterdayConsumedValue)) return false;
@@ -131,6 +132,10 @@ bool CGasCounter::beginPersistence() {
         restored.nCurrentMinuteIndex = static_cast<unsigned int>(index);
         day = static_cast<long>(date);
         savedAt = static_cast<int64_t>(timestamp);
+        restored.tLastTickTime = static_cast<time_t>(lastTick);
+        // Dateien ohne Kennzeichen: ein Zählerstand > 0 kann nur gesetzt worden sein.
+        restored.bMeterReadingValid = data->exists("meterReadingValid")
+                                    ? readingValid == 1 : restored.dMeterReading > 0;
         if (data->exists("minutes")) {
             JsonNode *minutes = data->getObject("minutes");
             if (!minutes) return false;
@@ -142,7 +147,8 @@ bool CGasCounter::beginPersistence() {
         }
     }
     if (restored.nCurrentMinuteIndex >= 60 || day < -1 ||
-        !validVolume(restored.fTotalCounter) || !validVolume(restored.fTotalConsumedValue) ||
+        !std::isfinite(restored.dMeterReading) || restored.dMeterReading < 0 ||
+        !validVolume(restored.fTotalConsumedValue) ||
         !validVolume(restored.fTodayConsumedValue) || !validVolume(restored.fYesterdayConsumedValue)) return false;
     for (float value : restored.tfMinuteValues) if (!validVolume(value)) return false;
     m_bStorageEnabled = true;
@@ -173,6 +179,7 @@ bool CGasCounter::beginPersistence() {
     m_lSavedDay = m_lCurrentDay;
     m_fSavedToday = Status.fTodayConsumedValue;
     m_fSavedYesterday = Status.fYesterdayConsumedValue;
+    m_dSavedMeterReading = Status.dMeterReading;
     if (migrated) saveState(true);
     return true;
 }
@@ -181,12 +188,20 @@ bool CGasCounter::saveState(bool force) {
     if (!m_bStorageEnabled) return true;
     if (!force && m_bStateSaved && m_ulSavedTicks == Status.ulTotalTickCounter &&
         m_lSavedDay == m_lCurrentDay && m_fSavedToday == Status.fTodayConsumedValue &&
-        m_fSavedYesterday == Status.fYesterdayConsumedValue) return true;
+        m_fSavedYesterday == Status.fYesterdayConsumedValue &&
+        m_dSavedMeterReading == Status.dMeterReading) return true;
     JsonNode document;
     document["schemaVersion"] = 2;
     JsonNode &data = *document.getObject("data", true);
     data["tickCounter"] = Status.ulTotalTickCounter;
-    writeVolume(data, "totalCounter", Status.fTotalCounter);
+    {
+        // 17 signifikante Stellen erhalten jeden double exakt beim Roundtrip.
+        char text[40];
+        snprintf(text, sizeof(text), "%.17g", Status.dMeterReading);
+        data["meterReading"] = text;
+    }
+    data["lastTick"] = static_cast<signed long long>(Status.tLastTickTime);
+    data["meterReadingValid"] = Status.bMeterReadingValid ? 1 : 0;
     writeVolume(data, "total", Status.fTotalConsumedValue);
     writeVolume(data, "today", Status.fTodayConsumedValue);
     writeVolume(data, "yesterday", Status.fYesterdayConsumedValue);
@@ -215,5 +230,6 @@ bool CGasCounter::saveState(bool force) {
     m_lSavedDay = m_lCurrentDay;
     m_fSavedToday = Status.fTodayConsumedValue;
     m_fSavedYesterday = Status.fYesterdayConsumedValue;
+    m_dSavedMeterReading = Status.dMeterReading;
     return true;
 }

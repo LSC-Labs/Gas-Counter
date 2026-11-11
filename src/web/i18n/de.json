@@ -94,6 +94,13 @@
       "type": "Client",
       "desc": "SSID des WLANs, drücken Sie 'Suchen' um WLANs in der Nähe zu finden."
     },
+    "phymode": {
+      "info": "WLAN-Standard (nur ESP8266). 802.11g vermeidet Abstürze im ESP8266-SDK, wenn der Router seine 11n-Einstellungen ändert (z.B. Kanalbreite, Mesh). Wird nach einem Neustart aktiv.",
+      "label": "WLAN-Standard",
+      "n": "802.11b/g/n",
+      "g": "802.11b/g (stabiler)",
+      "b": "802.11b"
+    },
     "legend": "WLAN Einstellungen"
   },
   "MQTT": {
@@ -181,29 +188,35 @@
     "installBtn": "Install",
     "noInternet": "Aktuell scheint keine Internet Verbindung vorhanden zu sein, oder der Firmware Update Server ist offline."
   },
-  "gasCounter": {},
+  "gasCounter": {
+    "meterReading": {
+      "legend": "Zählerstand",
+      "desc": "Aktuellen Stand der Gasuhr eingeben. Er wird mit jedem Impuls weitergezählt und dauerhaft gespeichert.",
+      "current": "Aktueller Zählerstand",
+      "label": "Neuer Zählerstand (m³)",
+      "info": "Stand der Gasuhr in Kubikmetern (z.B. 12345.678)",
+      "btn": "Zählerstand setzen",
+      "confirm": "Zählerstand setzen auf",
+      "invalid": "Bitte einen gültigen Zählerstand (>= 0) eingeben."
+    }
+  },
   "Status": {
     "panel": {
       "device": "Gerät",
       "network": "Netzwerk",
       "mqtt": "Message Broker"
     },
-    "gascounter": {
-      "m3hTotal": "Insgesammt verbraucht",
-      "m3hToday": "Heute",
-      "m3hPrevday": "Gestern",
-      "m3hCurrent": "Aktueller Verbrauch",
-      "m3hLastHour": "Verbraucht in der letzten Stunde"
-    },
     "legend": "Status - $(prog_name) Ver.: $(prog_ver)",
     "hostname": "Systemname",
     "uptime": "Laufzeit",
+    "resetReason": "Letzter Neustart",
     "flashSize": "Größe des Flash",
     "sketchSize": "Größe des Sketches",
-    "flashUsage": "Speichernutzung",
+    "flashUsage": "Programmspeicher",
     "battery": "Batterie",
     "ssid": "SSID",
     "rssi": "Signal Stärke",
+    "phymode": "WLAN-Standard",
     "ip": "IP Adresse",
     "gateway": "Gateway Adresse",
     "netmask": "Netzwerk Maske",
@@ -211,11 +224,17 @@
     "mac": "MAC Adresse",
     "enabled": "Aktiviert",
     "connected": "Verbunden",
-    "lastConStart": "Sart der Verbindung",
+    "lastConStart": "Start der Verbindung",
     "lastConLost": "Ende der letzten Verbindung",
     "disconReason": "Ursache des Abbruchs",
-    "memOK": "$(sketch_size) Kb genutzt von $(flash_available) Kb => $(flash_used_percent)%",
-    "memWarn": "Zu wenig Speicher für einen OTA Update! $(flash_used_percent)% genutzt."
+    "memOK": "Sketch $(sketch_kb) KB von $(sketch_area_kb) KB ($(flash_used_percent)%) - OTA Update möglich (bis $(sketch_free_kb) KB)",
+    "memWarn": "Zu wenig Speicher für ein OTA Update! Sketch $(sketch_kb) KB, frei nur $(sketch_free_kb) KB.",
+    "fsUsage": "Dateisystem",
+    "heap": "Arbeitsspeicher",
+    "fsOK": "$(fs_used_kb) KB von $(fs_total_kb) KB belegt ($(fs_used_percent)%)",
+    "fsWarn": "Dateisystem fast voll! $(fs_used_kb) KB von $(fs_total_kb) KB belegt ($(fs_used_percent)%)",
+    "heapInfo": "$(heap_free_kb) KB frei (min. $(heap_min_kb) KB), größter Block $(heap_block_kb) KB, Fragmentierung $(heap_frag)%",
+    "heapWarn": "Wenig freier Arbeitsspeicher oder starke Fragmentierung - Neustarts möglich!"
   },
   "Info": {
     "legend": "Verbrauch",
@@ -223,7 +242,8 @@
     "m3hToday": "Heute",
     "m3hPrevday": "Gestern",
     "m3hCurrent": "Aktuell",
-    "m3hLastHour": "Letzte Stunde"
+    "m3hLastHour": "Letzte Stunde",
+    "MeterReading": "Zählerstand"
   },
   "System": {
     "Restart": {
