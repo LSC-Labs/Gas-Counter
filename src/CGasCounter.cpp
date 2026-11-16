@@ -17,6 +17,12 @@
 // Obergrenze für einen plausiblen Zählerstand (m³).
 #define GASCOUNTER_MAX_METER_READING 99999999.0
 
+// Mindestdauer (ms), die ein Pegel ohne Wechsel anliegen muss, um als stabil zu gelten.
+// Kontaktprellen und Störimpulse sind deutlich kürzer, ein Reed-Impuls deutlich länger.
+#ifndef GASCOUNTER_DEBOUNCE_MS
+    #define GASCOUNTER_DEBOUNCE_MS 50U
+#endif
+
 #pragma region Constructor, Desctrutor and Setup
 
 /**
@@ -67,6 +73,9 @@ void CGasCounter::dispatch() {
     uint32_t nTicks, nLastTick, nPeriod;
     {
         esp8266::InterruptLock lock;
+        // Einen seit der Entprellzeit stabil anliegenden Impuls sofort verbuchen,
+        // nicht erst beim nächsten Pegelwechsel.
+        if (m_bMonitoring) evaluateStableLevel(millis());
         nTicks = m_ulPendingTicks;
         nLastTick = m_ulLastTickMillis;
         nPeriod = m_ulTickPeriodMillis;
@@ -312,7 +321,9 @@ void CGasCounter::insertComponentDiscovery(const char * pszComponentName,JsonNod
 #pragma Interrupt Handling and Monitoring
 
 /**
- * @brief Aktiviert die fallende Flanke einmalig; der erste Impuls hat noch keine Periode.
+ * @brief Aktiviert den Interrupt auf beiden Flanken; der erste Impuls hat noch keine Periode.
+ * Ein beim Start bereits aktiver Impuls zählt nicht (er wurde ggf. vor dem Neustart
+ * schon verbucht) - gezählt wird erst nach einem stabilen Ruhepegel.
  */
 void CGasCounter::startMonitoring(){
     if (m_bMonitoring || !canSendInterrupts()) return;
@@ -320,27 +331,53 @@ void CGasCounter::startMonitoring(){
         esp8266::InterruptLock lock;
         m_bHasTick = false;
         m_ulTickPeriodMillis = 0;
+        m_bArmed = false;
+        m_bLevelActive = isPinLogicalOn();
+        m_ulLastEdgeMillis = millis();
     }
     Status.ulPeriodTimeMillis = 0;
     storeMinuteValue();
-    attachInterrupt(m_nPin, std::bind(&CGasCounter::interruptHandler, this), FALLING);
+    attachInterrupt(m_nPin, std::bind(&CGasCounter::interruptHandler, this), CHANGE);
     m_bMonitoring = true;
 }
 
 /**
- * @brief Erfasst entprellte Impulse ohne Heap, Fließkomma, Logging oder Ereignisbus.
+ * @brief Bewertet den seit m_ulLastEdgeMillis anliegenden Pegel (ISR oder unter InterruptLock).
+ * Erst wenn ein Pegel GASCOUNTER_DEBOUNCE_MS ohne Wechsel anliegt, gilt er als stabil:
+ *  - stabiler Ruhepegel  -> scharf schalten
+ *  - stabiler Impuls     -> genau einen Tick zählen (nur wenn scharf), dann entschärfen
+ * Prellen beim Schließen UND beim Öffnen des Kontakts sowie Flattern an der
+ * Schaltschwelle erzeugen so keine zusätzlichen Ticks. Mehrfachaufrufe sind unkritisch.
+ * Der Tick wird dem Impulsbeginn (letzter Pegelwechsel) zugeordnet.
+ */
+void IRAM_ATTR CGasCounter::evaluateStableLevel(uint32_t nNow) {
+    if (nNow - m_ulLastEdgeMillis < GASCOUNTER_DEBOUNCE_MS) return;
+    if (!m_bLevelActive) {
+        m_bArmed = true;
+        return;
+    }
+    if (!m_bArmed) return;
+    m_bArmed = false;
+    const uint32_t nTickAt = m_ulLastEdgeMillis;
+    m_ulTickPeriodMillis = m_bHasTick ? nTickAt - m_ulLastTickMillis : 0;
+    m_ulLastTickMillis = nTickAt;
+    m_bHasTick = true;
+    ++m_ulPendingTicks;
+}
+
+/**
+ * @brief Erfasst Pegelwechsel ohne Heap, Fließkomma, Logging oder Ereignisbus.
+ * Schließt das bisherige Pegelsegment ab (ggf. Tick) und startet ein neues.
+ * Ein verpasster Wechsel (gleicher Pegel) startet die Stabilitätszeit nur neu.
  * Unsigned-Differenzen funktionieren auch über den 32-Bit-millis()-Überlauf hinweg.
  * Der Interruptzustand wird vom Framework wiederhergestellt, nicht hier verändert.
  */
 void IRAM_ATTR CGasCounter::interruptHandler() {
     const uint32_t nNow = millis();
-    const uint32_t nElapsed = nNow - m_ulLastTickMillis;
-    if (m_bHasTick && nElapsed < 100U) return;
-
-    m_ulTickPeriodMillis = m_bHasTick ? nElapsed : 0;
-    m_ulLastTickMillis = nNow;
-    m_bHasTick = true;
-    ++m_ulPendingTicks;
+    const bool bActive = (digitalRead(m_nPin) == LOW) == m_bLowLevelIsOn;
+    evaluateStableLevel(nNow);
+    m_bLevelActive = bActive;
+    m_ulLastEdgeMillis = nNow;
 }
 
 #pragma endregion

@@ -39,6 +39,10 @@ class CGasCounter : CInputPinController, public IModule, public IHomeAssistantCo
         volatile uint32_t m_ulLastTickMillis = 0;
         volatile uint32_t m_ulTickPeriodMillis = 0;
         volatile bool m_bHasTick = false;
+        // Pegelbasierte Entprellung (siehe interruptHandler()).
+        volatile uint32_t m_ulLastEdgeMillis = 0;   // Zeitpunkt des letzten Pegelwechsels
+        volatile bool m_bLevelActive = false;       // Pegel seit m_ulLastEdgeMillis (true = Impuls aktiv)
+        volatile bool m_bArmed = false;             // Stabiler Ruhepegel gesehen -> nächster stabiler Impuls zählt
         bool m_bMonitoring = false;
         bool m_bMinuteClockStarted = false;
         uint32_t m_ulMinuteStartedAt = 0;
@@ -55,6 +59,7 @@ class CGasCounter : CInputPinController, public IModule, public IHomeAssistantCo
         void adjustDayCounters();
        
         void IRAM_ATTR interruptHandler();
+        void IRAM_ATTR evaluateStableLevel(uint32_t nNow);
         bool getLocalTimeStruct(struct tm *pTimeinfo);
         void storeMinuteValue();
 

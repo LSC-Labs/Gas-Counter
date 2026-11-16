@@ -50,9 +50,11 @@ class CGasCounterPage extends CPageHandler {
         let strAsk = await this.Transe.getKeyData("gasCounter.meterReading.confirm");
         if(!confirm((strAsk ?? "Set meter reading to") + " " + fValue.toFixed(3) + " m³ ?")) return;
         this._App.sendSocketCommand("setgasmeter","",{ "meterReading": fValue.toFixed(3) });
-        // Device processes the command in its loop - then fetch the new status.
-        let oApp = this._App;
-        setTimeout(() => oApp.requestActStatus(), 1000);
+        // Den neuen Status über den WebSocket anfordern: Das Gerät verarbeitet die Kommandos
+        // der Reihe nach im Loop und erzeugt den Status dort frisch - die Antwort enthält also
+        // bereits den neuen Zählerstand (-> onUpdateStatusReceived).
+        // apiV1/status liefert dagegen nur den letzten Snapshot (ggf. noch der alte Wert).
+        this._App.sendSocketCommand("getstatus");
     }
 
     on(pView, oElement) {
